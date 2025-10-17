@@ -57,21 +57,23 @@ data "coder_parameter" "additional_volumes" {
   order        = 110
 }
 
-# --- Fixed parameter sets for up to 3 containers (leave blank to skip) ---
+# --- Section: Parameters for Container #1 ---
 data "coder_parameter" "container_1_name" {
   name         = "container_1_name"
   display_name = "Container #1: Name"
   description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container."
   type         = "string"
-  icon         = "/emojis/1f4db.png"
+  icon         = "/emojis/1f4db.png" # Name badge emoji
   mutable      = true
   default      = ""
   order        = 201
+
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
   }
 }
+
 data "coder_parameter" "container_1_image" {
   name         = "container_1_image"
   display_name = "Container #1: Image"
@@ -81,25 +83,29 @@ data "coder_parameter" "container_1_image" {
   mutable      = true
   default      = ""
   order        = 202
+
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
   }
 }
+
 data "coder_parameter" "container_1_ports" {
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
-  description  = "Comma-separated ports (1-65535), e.g., '6379, 8080'"
-  icon         = "/emojis/1f50c.png"
+  description  = "Comma-separated ports (1-65535), e.g., '6379, 8080'. Common: Redis=6379, HTTP=8080, Postgres=5432"
+  icon         = "/emojis/1f50c.png" # Plug emoji
   type         = "string"
   mutable      = true
   default      = ""
   order        = 203
+
   validation {
     regex = "^[0-9, ]*$"
     error = "Ports must be numbers separated by commas and spaces."
   }
 }
+
 data "coder_parameter" "container_1_volume_mounts" {
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
@@ -110,17 +116,19 @@ data "coder_parameter" "container_1_volume_mounts" {
   default      = ""
   order        = 204
 }
+
 data "coder_parameter" "container_1_env_vars" {
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
   description  = "One per line, e.g., 'POSTGRES_USER=coder'"
   type         = "string"
-  icon         = "/emojis/2699.png"
+  icon         = "/emojis/2699.png" # Gear emoji
   mutable      = true
   default      = ""
   order        = 205
 }
 
+# --- Section: Parameters for Container #2 ---
 data "coder_parameter" "container_2_name" {
   name         = "container_2_name"
   display_name = "Container #2: Name"
@@ -130,11 +138,13 @@ data "coder_parameter" "container_2_name" {
   mutable      = true
   default      = ""
   order        = 211
+
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
   }
 }
+
 data "coder_parameter" "container_2_image" {
   name         = "container_2_image"
   display_name = "Container #2: Image"
@@ -144,11 +154,13 @@ data "coder_parameter" "container_2_image" {
   mutable      = true
   default      = ""
   order        = 212
+
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
   }
 }
+
 data "coder_parameter" "container_2_ports" {
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
@@ -158,11 +170,13 @@ data "coder_parameter" "container_2_ports" {
   mutable      = true
   default      = ""
   order        = 213
+
   validation {
     regex = "^[0-9, ]*$"
     error = "Ports must be numbers separated by commas and spaces."
   }
 }
+
 data "coder_parameter" "container_2_volume_mounts" {
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
@@ -173,6 +187,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   default      = ""
   order        = 214
 }
+
 data "coder_parameter" "container_2_env_vars" {
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
@@ -184,6 +199,7 @@ data "coder_parameter" "container_2_env_vars" {
   order        = 215
 }
 
+# --- Section: Parameters for Container #3 ---
 data "coder_parameter" "container_3_name" {
   name         = "container_3_name"
   display_name = "Container #3: Name"
@@ -193,11 +209,13 @@ data "coder_parameter" "container_3_name" {
   mutable      = true
   default      = ""
   order        = 221
+
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
   }
 }
+
 data "coder_parameter" "container_3_image" {
   name         = "container_3_image"
   display_name = "Container #3: Image"
@@ -207,11 +225,13 @@ data "coder_parameter" "container_3_image" {
   mutable      = true
   default      = ""
   order        = 222
+
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
   }
 }
+
 data "coder_parameter" "container_3_ports" {
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
@@ -221,11 +241,13 @@ data "coder_parameter" "container_3_ports" {
   mutable      = true
   default      = ""
   order        = 223
+
   validation {
     regex = "^[0-9, ]*$"
     error = "Ports must be numbers separated by commas and spaces."
   }
 }
+
 data "coder_parameter" "container_3_volume_mounts" {
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
@@ -236,6 +258,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   default      = ""
   order        = 224
 }
+
 data "coder_parameter" "container_3_env_vars" {
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
@@ -247,15 +270,17 @@ data "coder_parameter" "container_3_env_vars" {
   order        = 225
 }
 
-# --- Fixed parameter sets for up to 3 additional Coder apps ---
+# --- Section: Parameters for App #1 ---
 data "coder_parameter" "app_1_name" {
   name         = "app_1_name"
   display_name = "App #1: Name"
+  description  = "Display name for the app. Leave empty to skip this app."
   type         = "string"
   mutable      = true
   default      = ""
   order        = 301
 }
+
 data "coder_parameter" "app_1_slug" {
   name         = "app_1_slug"
   display_name = "App #1: Slug"
@@ -264,24 +289,28 @@ data "coder_parameter" "app_1_slug" {
   mutable      = true
   default      = ""
   order        = 302
+
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
   }
 }
+
 data "coder_parameter" "app_1_url" {
   name         = "app_1_url"
   display_name = "App #1: URL"
-  description  = "Internal service URL"
+  description  = "Internal service URL (e.g., http://redis-commander:8081)"
   type         = "string"
   mutable      = true
   default      = ""
   order        = 303
+
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
   }
 }
+
 data "coder_parameter" "app_1_icon" {
   name         = "app_1_icon"
   display_name = "App #1: Icon"
@@ -291,6 +320,7 @@ data "coder_parameter" "app_1_icon" {
   default      = ""
   order        = 304
 }
+
 data "coder_parameter" "app_1_share" {
   name         = "app_1_share"
   display_name = "App #1: Share Level"
@@ -298,6 +328,7 @@ data "coder_parameter" "app_1_share" {
   default      = "owner"
   mutable      = true
   order        = 305
+
   option {
     name  = "Owner"
     value = "owner"
@@ -312,14 +343,17 @@ data "coder_parameter" "app_1_share" {
   }
 }
 
+# --- Section: Parameters for App #2 ---
 data "coder_parameter" "app_2_name" {
   name         = "app_2_name"
   display_name = "App #2: Name"
+  description  = "Display name for the app. Leave empty to skip this app."
   type         = "string"
   mutable      = true
   default      = ""
   order        = 311
 }
+
 data "coder_parameter" "app_2_slug" {
   name         = "app_2_slug"
   display_name = "App #2: Slug"
@@ -328,24 +362,28 @@ data "coder_parameter" "app_2_slug" {
   mutable      = true
   default      = ""
   order        = 312
+
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
   }
 }
+
 data "coder_parameter" "app_2_url" {
   name         = "app_2_url"
   display_name = "App #2: URL"
-  description  = "Internal service URL"
+  description  = "Internal service URL (e.g., http://postgres-admin:5050)"
   type         = "string"
   mutable      = true
   default      = ""
   order        = 313
+
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
   }
 }
+
 data "coder_parameter" "app_2_icon" {
   name         = "app_2_icon"
   display_name = "App #2: Icon"
@@ -355,6 +393,7 @@ data "coder_parameter" "app_2_icon" {
   default      = ""
   order        = 314
 }
+
 data "coder_parameter" "app_2_share" {
   name         = "app_2_share"
   display_name = "App #2: Share Level"
@@ -362,6 +401,7 @@ data "coder_parameter" "app_2_share" {
   default      = "owner"
   mutable      = true
   order        = 315
+
   option {
     name  = "Owner"
     value = "owner"
@@ -376,14 +416,17 @@ data "coder_parameter" "app_2_share" {
   }
 }
 
+# --- Section: Parameters for App #3 ---
 data "coder_parameter" "app_3_name" {
   name         = "app_3_name"
   display_name = "App #3: Name"
+  description  = "Display name for the app. Leave empty to skip this app."
   type         = "string"
   mutable      = true
   default      = ""
   order        = 321
 }
+
 data "coder_parameter" "app_3_slug" {
   name         = "app_3_slug"
   display_name = "App #3: Slug"
@@ -392,11 +435,13 @@ data "coder_parameter" "app_3_slug" {
   mutable      = true
   default      = ""
   order        = 322
+
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
   }
 }
+
 data "coder_parameter" "app_3_url" {
   name         = "app_3_url"
   display_name = "App #3: URL"
@@ -405,11 +450,13 @@ data "coder_parameter" "app_3_url" {
   mutable      = true
   default      = ""
   order        = 323
+
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
   }
 }
+
 data "coder_parameter" "app_3_icon" {
   name         = "app_3_icon"
   display_name = "App #3: Icon"
@@ -419,6 +466,7 @@ data "coder_parameter" "app_3_icon" {
   default      = ""
   order        = 324
 }
+
 data "coder_parameter" "app_3_share" {
   name         = "app_3_share"
   display_name = "App #3: Share Level"
@@ -426,6 +474,7 @@ data "coder_parameter" "app_3_share" {
   default      = "owner"
   mutable      = true
   order        = 325
+
   option {
     name  = "Owner"
     value = "owner"
@@ -440,7 +489,7 @@ data "coder_parameter" "app_3_share" {
   }
 }
 
-data "coder_workspace" "me" {}
+data "coder_workspace" "me" {} # Required for start_count
 
 locals {
   # Preset configurations for common services
@@ -509,68 +558,31 @@ locals {
   # Construct containers from preset (if selected) and custom parameters
   preset_containers = local.preset_data != null ? local.preset_data.containers : []
 
-  # Build container definitions from fixed parameter slots, then filter empties
-  custom_containers_raw = [
-    {
-      name  = try(data.coder_parameter.container_1_name.value, "")
-      image = try(data.coder_parameter.container_1_image.value, "")
+  # Parse custom containers from the fixed parameter sets (filter out empty ones)
+  custom_containers = [
+    for i in [1, 2, 3] : {
+      name  = try(data.coder_parameter["container_${i}_name"].value, "")
+      image = try(data.coder_parameter["container_${i}_image"].value, "")
+      # Parse and validate ports (1-65535 range)
       ports = [
-        for p in split(",", try(data.coder_parameter.container_1_ports.value, "")) :
+        for p in split(",", try(data.coder_parameter["container_${i}_ports"].value, "")) :
         tonumber(trimspace(p))
         if trimspace(p) != "" && can(tonumber(trimspace(p))) && tonumber(trimspace(p)) >= 1 && tonumber(trimspace(p)) <= 65535
       ]
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_1_volume_mounts.value, "")) :
+        for mount in split(",", try(data.coder_parameter["container_${i}_volume_mounts"].value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
         if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
+      # Parse environment variables with basic validation (KEY=VALUE format)
       env = [
-        for line in split("\n", try(data.coder_parameter.container_1_env_vars.value, "")) :
-        trimspace(line)
-        if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
-      ]
-    },
-    {
-      name  = try(data.coder_parameter.container_2_name.value, "")
-      image = try(data.coder_parameter.container_2_image.value, "")
-      ports = [
-        for p in split(",", try(data.coder_parameter.container_2_ports.value, "")) :
-        tonumber(trimspace(p))
-        if trimspace(p) != "" && can(tonumber(trimspace(p))) && tonumber(trimspace(p)) >= 1 && tonumber(trimspace(p)) <= 65535
-      ]
-      mounts = {
-        for mount in split(",", try(data.coder_parameter.container_2_volume_mounts.value, "")) :
-        trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
-      }
-      env = [
-        for line in split("\n", try(data.coder_parameter.container_2_env_vars.value, "")) :
-        trimspace(line)
-        if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
-      ]
-    },
-    {
-      name  = try(data.coder_parameter.container_3_name.value, "")
-      image = try(data.coder_parameter.container_3_image.value, "")
-      ports = [
-        for p in split(",", try(data.coder_parameter.container_3_ports.value, "")) :
-        tonumber(trimspace(p))
-        if trimspace(p) != "" && can(tonumber(trimspace(p))) && tonumber(trimspace(p)) >= 1 && tonumber(trimspace(p)) <= 65535
-      ]
-      mounts = {
-        for mount in split(",", try(data.coder_parameter.container_3_volume_mounts.value, "")) :
-        trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
-      }
-      env = [
-        for line in split("\n", try(data.coder_parameter.container_3_env_vars.value, "")) :
+        for line in split("\n", try(data.coder_parameter["container_${i}_env_vars"].value, "")) :
         trimspace(line)
         if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
       ]
     }
+    if try(data.coder_parameter["container_${i}_name"].value, "") != "" && try(data.coder_parameter["container_${i}_image"].value, "") != ""
   ]
-
-  custom_containers = [for c in local.custom_containers_raw : c if c.name != "" && c.image != ""]
 
   # Combine preset and custom containers
   additional_containers = concat(local.preset_containers, local.custom_containers)
@@ -588,42 +600,19 @@ locals {
     }
   ] : []
 
-  # Build apps from fixed parameter slots, then filter empties
-  custom_apps_raw = [
-    {
-      name         = try(data.coder_parameter.app_1_name.value, "")
-      slug         = try(data.coder_parameter.app_1_slug.value, "")
-      icon         = try(data.coder_parameter.app_1_icon.value, "")
-      share        = try(data.coder_parameter.app_1_share.value, "owner")
-      original_url = try(data.coder_parameter.app_1_url.value, "")
-    },
-    {
-      name         = try(data.coder_parameter.app_2_name.value, "")
-      slug         = try(data.coder_parameter.app_2_slug.value, "")
-      icon         = try(data.coder_parameter.app_2_icon.value, "")
-      share        = try(data.coder_parameter.app_2_share.value, "owner")
-      original_url = try(data.coder_parameter.app_2_url.value, "")
-    },
-    {
-      name         = try(data.coder_parameter.app_3_name.value, "")
-      slug         = try(data.coder_parameter.app_3_slug.value, "")
-      icon         = try(data.coder_parameter.app_3_icon.value, "")
-      share        = try(data.coder_parameter.app_3_share.value, "owner")
-      original_url = try(data.coder_parameter.app_3_url.value, "")
-    }
-  ]
-
-  # Assign ports after preset apps and build proxy URLs
+  # Parse custom apps from the fixed parameter sets (filter out empty ones)
   custom_apps = [
-    for idx, app in tolist(local.custom_apps_raw) : {
-      name         = app.name
-      slug         = app.slug
-      icon         = app.icon
-      share        = app.share
-      original_url = app.original_url
-      local_port   = 9000 + length(local.preset_apps) + idx
-      proxy_url    = "http://localhost:${9000 + length(local.preset_apps) + idx}"
-    } if app.name != "" && app.slug != ""
+    for i in [1, 2, 3] : {
+      name         = try(data.coder_parameter["app_${i}_name"].value, "")
+      slug         = try(data.coder_parameter["app_${i}_slug"].value, "")
+      icon         = try(data.coder_parameter["app_${i}_icon"].value, "")
+      share        = try(data.coder_parameter["app_${i}_share"].value, "owner")
+      original_url = try(data.coder_parameter["app_${i}_url"].value, "")
+      # Assign ports after preset apps
+      local_port = 9000 + length(local.preset_apps) + i - 1
+      proxy_url  = "http://localhost:${9000 + length(local.preset_apps) + i - 1}"
+    }
+    if try(data.coder_parameter["app_${i}_name"].value, "") != "" && try(data.coder_parameter["app_${i}_slug"].value, "") != ""
   ]
 
   # Combine preset and custom apps
@@ -662,7 +651,6 @@ resource "docker_container" "dynamic_resource_container" {
   hostname     = each.value.name
   network_mode = var.docker_network_name
   env          = each.value.env
-  #   restart      = "unless-stopped"
 
   # Resource limits to prevent containers from consuming excessive resources
   memory      = var.container_memory_limit
@@ -731,4 +719,3 @@ resource "coder_app" "dynamic_app" {
   icon         = each.value.icon
   share        = each.value.share
 }
-
