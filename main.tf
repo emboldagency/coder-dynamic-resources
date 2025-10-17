@@ -72,6 +72,7 @@ data "coder_parameter" "container_1_name" {
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
   }
 }
+
 data "coder_parameter" "container_1_image" {
   name         = "container_1_image"
   display_name = "Container #1: Image"
@@ -86,6 +87,7 @@ data "coder_parameter" "container_1_image" {
     error = "Image must be a valid Docker image name (optionally with tag)."
   }
 }
+
 data "coder_parameter" "container_1_ports" {
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
@@ -100,6 +102,7 @@ data "coder_parameter" "container_1_ports" {
     error = "Ports must be numbers separated by commas and spaces."
   }
 }
+
 data "coder_parameter" "container_1_volume_mounts" {
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
@@ -110,6 +113,7 @@ data "coder_parameter" "container_1_volume_mounts" {
   default      = ""
   order        = 204
 }
+
 data "coder_parameter" "container_1_env_vars" {
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
@@ -135,6 +139,7 @@ data "coder_parameter" "container_2_name" {
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
   }
 }
+
 data "coder_parameter" "container_2_image" {
   name         = "container_2_image"
   display_name = "Container #2: Image"
@@ -149,6 +154,7 @@ data "coder_parameter" "container_2_image" {
     error = "Image must be a valid Docker image name (optionally with tag)."
   }
 }
+
 data "coder_parameter" "container_2_ports" {
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
@@ -163,6 +169,7 @@ data "coder_parameter" "container_2_ports" {
     error = "Ports must be numbers separated by commas and spaces."
   }
 }
+
 data "coder_parameter" "container_2_volume_mounts" {
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
@@ -173,6 +180,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   default      = ""
   order        = 214
 }
+
 data "coder_parameter" "container_2_env_vars" {
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
@@ -198,6 +206,7 @@ data "coder_parameter" "container_3_name" {
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
   }
 }
+
 data "coder_parameter" "container_3_image" {
   name         = "container_3_image"
   display_name = "Container #3: Image"
@@ -212,6 +221,7 @@ data "coder_parameter" "container_3_image" {
     error = "Image must be a valid Docker image name (optionally with tag)."
   }
 }
+
 data "coder_parameter" "container_3_ports" {
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
@@ -226,6 +236,7 @@ data "coder_parameter" "container_3_ports" {
     error = "Ports must be numbers separated by commas and spaces."
   }
 }
+
 data "coder_parameter" "container_3_volume_mounts" {
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
@@ -236,6 +247,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   default      = ""
   order        = 224
 }
+
 data "coder_parameter" "container_3_env_vars" {
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
@@ -256,6 +268,7 @@ data "coder_parameter" "app_1_name" {
   default      = ""
   order        = 301
 }
+
 data "coder_parameter" "app_1_slug" {
   name         = "app_1_slug"
   display_name = "App #1: Slug"
@@ -269,6 +282,7 @@ data "coder_parameter" "app_1_slug" {
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
   }
 }
+
 data "coder_parameter" "app_1_url" {
   name         = "app_1_url"
   display_name = "App #1: URL"
@@ -282,6 +296,7 @@ data "coder_parameter" "app_1_url" {
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
   }
 }
+
 data "coder_parameter" "app_1_icon" {
   name         = "app_1_icon"
   display_name = "App #1: Icon"
@@ -291,6 +306,7 @@ data "coder_parameter" "app_1_icon" {
   default      = ""
   order        = 304
 }
+
 data "coder_parameter" "app_1_share" {
   name         = "app_1_share"
   display_name = "App #1: Share Level"
@@ -320,6 +336,7 @@ data "coder_parameter" "app_2_name" {
   default      = ""
   order        = 311
 }
+
 data "coder_parameter" "app_2_slug" {
   name         = "app_2_slug"
   display_name = "App #2: Slug"
@@ -333,6 +350,7 @@ data "coder_parameter" "app_2_slug" {
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
   }
 }
+
 data "coder_parameter" "app_2_url" {
   name         = "app_2_url"
   display_name = "App #2: URL"
@@ -346,6 +364,7 @@ data "coder_parameter" "app_2_url" {
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
   }
 }
+
 data "coder_parameter" "app_2_icon" {
   name         = "app_2_icon"
   display_name = "App #2: Icon"
@@ -355,6 +374,7 @@ data "coder_parameter" "app_2_icon" {
   default      = ""
   order        = 314
 }
+
 data "coder_parameter" "app_2_share" {
   name         = "app_2_share"
   display_name = "App #2: Share Level"
@@ -384,6 +404,7 @@ data "coder_parameter" "app_3_name" {
   default      = ""
   order        = 321
 }
+
 data "coder_parameter" "app_3_slug" {
   name         = "app_3_slug"
   display_name = "App #3: Slug"
@@ -397,6 +418,7 @@ data "coder_parameter" "app_3_slug" {
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
   }
 }
+
 data "coder_parameter" "app_3_url" {
   name         = "app_3_url"
   display_name = "App #3: URL"
@@ -410,6 +432,7 @@ data "coder_parameter" "app_3_url" {
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
   }
 }
+
 data "coder_parameter" "app_3_icon" {
   name         = "app_3_icon"
   display_name = "App #3: Icon"
@@ -419,6 +442,7 @@ data "coder_parameter" "app_3_icon" {
   default      = ""
   order        = 324
 }
+
 data "coder_parameter" "app_3_share" {
   name         = "app_3_share"
   display_name = "App #3: Share Level"
