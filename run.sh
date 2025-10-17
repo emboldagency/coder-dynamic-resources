@@ -17,7 +17,7 @@ if [[ -z "$PROXY_LINE" ]]; then
   exit 0
 fi
 
-RUNDIR="$${XDG_RUNTIME_DIR:-/tmp}/reverse-proxy"
+RUNDIR="$${XDG_RUNTIME_DIR:-/tmp}/dynamic-resources-reverse-proxy"
 mkdir -p "$RUNDIR" || true
 
 for m in $PROXY_LINE; do
