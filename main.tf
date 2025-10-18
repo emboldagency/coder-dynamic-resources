@@ -117,7 +117,7 @@ data "coder_parameter" "container_1_volume_mounts" {
 data "coder_parameter" "container_1_env_vars" {
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
-  description  = "One per line, e.g., 'POSTGRES_USER=coder'"
+  description  = "One per line, e.g., 'POSTGRES_USER=embold'"
   type         = "string"
   icon         = "/emojis/2733.png"
   mutable      = true
@@ -184,7 +184,7 @@ data "coder_parameter" "container_2_volume_mounts" {
 data "coder_parameter" "container_2_env_vars" {
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
-  description  = "One per line, e.g., 'POSTGRES_USER=coder'"
+  description  = "One per line, e.g., 'POSTGRES_USER=embold'"
   type         = "string"
   icon         = "/emojis/2733.png"
   mutable      = true
@@ -251,7 +251,7 @@ data "coder_parameter" "container_3_volume_mounts" {
 data "coder_parameter" "container_3_env_vars" {
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
-  description  = "One per line, e.g., 'POSTGRES_USER=coder'"
+  description  = "One per line, e.g., 'POSTGRES_USER=embold'"
   type         = "string"
   icon         = "/emojis/2733.png"
   mutable      = true
@@ -491,7 +491,12 @@ locals {
         name   = "postgres"
         image  = "postgres:15-alpine"
         ports  = [5432]
-        env    = ["POSTGRES_DB=workspace", "POSTGRES_USER=coder", "POSTGRES_PASSWORD=coder"]
+        env    = [
+          # Use sanitized workspace name for DB name, fallback to 'workspace'
+          "POSTGRES_DB=${lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) != "" ? lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) : "workspace"}",
+          "POSTGRES_USER=embold",
+          "POSTGRES_PASSWORD=embold"
+        ]
         mounts = { "postgres-data" = "/var/lib/postgresql/data" }
       }]
       volumes = ["postgres-data"]
@@ -502,7 +507,13 @@ locals {
         name   = "mysql"
         image  = "mysql:8.0"
         ports  = [3306]
-        env    = ["MYSQL_ROOT_PASSWORD=coder", "MYSQL_DATABASE=workspace", "MYSQL_USER=coder", "MYSQL_PASSWORD=coder"]
+        env    = [
+          # MySQL expects a database name without special chars; use sanitized workspace name
+          "MYSQL_ROOT_PASSWORD=embold",
+          "MYSQL_DATABASE=${lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) != "" ? lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) : "workspace"}",
+          "MYSQL_USER=embold",
+          "MYSQL_PASSWORD=embold"
+        ]
         mounts = { "mysql-data" = "/var/lib/mysql" }
       }]
       volumes = ["mysql-data"]
@@ -513,7 +524,11 @@ locals {
         name   = "mongo"
         image  = "mongo:7"
         ports  = [27017]
-        env    = ["MONGO_INITDB_ROOT_USERNAME=coder", "MONGO_INITDB_ROOT_PASSWORD=coder"]
+        env    = [
+          # MongoDB initial DB can be created via the init scripts; set root user/pass to embold
+          "MONGO_INITDB_ROOT_USERNAME=embold",
+          "MONGO_INITDB_ROOT_PASSWORD=embold"
+        ]
         mounts = { "mongo-data" = "/data/db" }
       }]
       volumes = ["mongo-data"]
@@ -692,12 +707,25 @@ resource "docker_volume" "dynamic_resource_volume" {
   lifecycle {
     ignore_changes = all
   }
+  # Label volumes so they can be associated with the Coder agent and workspace
+  labels {
+    label = "coder.agent_id"
+    value = var.agent_id
+  }
+  labels {
+    label = "coder.workspace_id"
+    value = data.coder_workspace.me.id
+  }
+  labels {
+    label = "coder.volume_key"
+    value = each.key
+  }
 }
 
 resource "docker_container" "dynamic_resource_container" {
   # Only create containers if the workspace is running.
   for_each = data.coder_workspace.me.start_count > 0 ? local.all_containers_map : {}
-
+  agent_id = var.agent_id
   name = (
     startswith(each.key, "custom-")
     ? "${var.resource_name_base}-custom-${each.value.custom_idx}"
@@ -719,6 +747,20 @@ resource "docker_container" "dynamic_resource_container" {
   read_only = false # Allow writes to container filesystem
   tmpfs = {
     "/tmp" = "noexec,nosuid,size=100m"
+  }
+
+  # Label containers so they can be associated with the Coder agent and workspace
+  labels {
+    label = "coder.agent_id"
+    value = var.agent_id
+  }
+  labels {
+    label = "coder.workspace_id"
+    value = data.coder_workspace.me.id
+  }
+  labels {
+    label = "coder.resource_key"
+    value = each.key
   }
 
   # Health check for better container management
