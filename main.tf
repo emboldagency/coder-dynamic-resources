@@ -52,6 +52,7 @@ data "coder_parameter" "additional_volumes" {
   description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\nExample: *[\"my-cache\", \"shared-uploads\"]*"
   icon         = "/icon/folder.svg"
   type         = "list(string)"
+  form_type    = "tag_select"
   mutable      = true
   default      = jsonencode([])
   order        = 110
@@ -63,6 +64,7 @@ data "coder_parameter" "custom_container_count" {
   description  = "Number of additional Docker containers to create (1-3). Leave as 0 to skip adding containers."
   type         = "number"
   form_type    = "slider"
+  mutable      = true
   default      = 0
   validation {
     min = 0
@@ -302,6 +304,7 @@ data "coder_parameter" "custom_coder_app_count" {
   description  = "Number of additional Coder Apps to create (1-3). Leave as 0 to skip adding coder apps."
   type         = "number"
   form_type    = "slider"
+  mutable      = true
   default      = 0
   validation {
     min = 0
