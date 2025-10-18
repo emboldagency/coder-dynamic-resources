@@ -65,7 +65,7 @@ data "coder_parameter" "custom_container_count" {
   form_type    = "slider"
   default      = 0
   validation {
-    min = 1
+    min = 0
     max = 3
   }
 }
