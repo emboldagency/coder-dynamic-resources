@@ -47,7 +47,6 @@ data "coder_parameter" "quick_setup_preset" {
 
 # --- Section: Parameters for Additional Volumes ---
 data "coder_parameter" "additional_volumes" {
-  count        = local.selected_preset ? 1 : 0
   name         = "additional_volumes"
   display_name = "Additional Volumes to Create"
   description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\nExample: *[\"my-cache\", \"shared-uploads\"]*"
@@ -59,7 +58,6 @@ data "coder_parameter" "additional_volumes" {
 }
 
 data "coder_parameter" "custom_container_count" {
-  count        = local.selected_preset ? 1 : 0
   name         = "custom_container_count"
   display_name = "Custom Container Count"
   description  = "Number of additional Docker containers to create (1-3). Leave as 0 to skip adding containers."
@@ -88,7 +86,7 @@ data "coder_parameter" "custom_container_count" {
 
 # --- Fixed parameter sets for up to 3 containers (leave blank to skip) ---
 data "coder_parameter" "container_1_name" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_name"
   display_name = "Container #1: Name"
   description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\nExample: *'redis', 'postgres', or 'my-service'*"
@@ -104,7 +102,7 @@ data "coder_parameter" "container_1_name" {
 }
 
 data "coder_parameter" "container_1_image" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_image"
   display_name = "Container #1: Image"
   description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\nExample: *'postgres:15-alpine'*"
@@ -120,7 +118,7 @@ data "coder_parameter" "container_1_image" {
 }
 
 data "coder_parameter" "container_1_ports" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
   description  = "Comma-separated internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host).\n\nExample: *'6379' or '8080, 3000'*"
@@ -136,7 +134,7 @@ data "coder_parameter" "container_1_ports" {
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
   description  = "Comma-separated volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume.\n\nExample: *'postgres-data:/var/lib/postgresql/data, uploads:/srv/uploads'*"
@@ -148,7 +146,7 @@ data "coder_parameter" "container_1_volume_mounts" {
 }
 
 data "coder_parameter" "container_1_env_vars" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
   description  = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\nExample:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold"
@@ -160,7 +158,7 @@ data "coder_parameter" "container_1_env_vars" {
 }
 
 data "coder_parameter" "container_2_name" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_name"
   display_name = "Container #2: Name"
   description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\nExample: *'elastic'*"
@@ -176,7 +174,7 @@ data "coder_parameter" "container_2_name" {
 }
 
 data "coder_parameter" "container_2_image" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_image"
   display_name = "Container #2: Image"
   description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\nExample: *'redis:7-alpine'*"
@@ -192,7 +190,7 @@ data "coder_parameter" "container_2_image" {
 }
 
 data "coder_parameter" "container_2_ports" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
   description  = "Comma-separated internal container ports (1-65535).\n\nExample: *'27017' or '8080, 5000'*"
@@ -208,7 +206,7 @@ data "coder_parameter" "container_2_ports" {
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
   description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\nExample: *'mongo-data:/data/db'*"
@@ -220,7 +218,7 @@ data "coder_parameter" "container_2_volume_mounts" {
 }
 
 data "coder_parameter" "container_2_env_vars" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
   description  = "One environment variable per line, e.g.\nMONGO_INITDB_ROOT_USERNAME=embold\nMONGO_INITDB_ROOT_PASSWORD=embold"
@@ -232,7 +230,7 @@ data "coder_parameter" "container_2_env_vars" {
 }
 
 data "coder_parameter" "container_3_name" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_name"
   display_name = "Container #3: Name"
   description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\nExample: *'my-service'*"
@@ -248,7 +246,7 @@ data "coder_parameter" "container_3_name" {
 }
 
 data "coder_parameter" "container_3_image" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_image"
   display_name = "Container #3: Image"
   description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\nExample: *'nginx:stable'*"
@@ -264,7 +262,7 @@ data "coder_parameter" "container_3_image" {
 }
 
 data "coder_parameter" "container_3_ports" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
   description  = "Comma-separated internal container ports (1-65535).\n\nExample: *'8080'*"
@@ -280,7 +278,7 @@ data "coder_parameter" "container_3_ports" {
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
   description  = "Comma-separated volume mounts.\n\nExample: *'uploads:/srv/uploads,my-volume:/path/in/container'*"
@@ -292,7 +290,7 @@ data "coder_parameter" "container_3_volume_mounts" {
 }
 
 data "coder_parameter" "container_3_env_vars" {
-  count        = data.coder_parameter.custom_container_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
   description  = "One environment variable per line.\n\nExample:*\nKEY=value\nAnother_KEY=another_value*"
@@ -319,7 +317,7 @@ data "coder_parameter" "custom_coder_app_count" {
 
 # --- Fixed parameter sets for up to 3 additional Coder apps ---
 data "coder_parameter" "app_1_name" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_name"
   display_name = "Coder App #1: Name"
   type         = "string"
@@ -329,7 +327,7 @@ data "coder_parameter" "app_1_name" {
 }
 
 data "coder_parameter" "app_1_slug" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_slug"
   display_name = "Coder App #1: Slug"
   description  = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\nExample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*"
@@ -344,7 +342,7 @@ data "coder_parameter" "app_1_slug" {
 }
 
 data "coder_parameter" "app_1_url" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_url"
   display_name = "Coder App #1: URL"
   description  = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\nExample: *'http://redis:6379' or 'http://localhost:9000/path'*"
@@ -359,7 +357,7 @@ data "coder_parameter" "app_1_url" {
 }
 
 data "coder_parameter" "app_1_icon" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_icon"
   display_name = "Coder App #1: Icon"
   description  = "Icon path or emoji code for the app. \n\nExample: *'/icon/redis.svg' or '/emojis/1f310.png'*"
@@ -370,7 +368,7 @@ data "coder_parameter" "app_1_icon" {
 }
 
 data "coder_parameter" "app_1_share" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 1 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_share"
   display_name = "Coder App #1: Share Level"
   type         = "string"
@@ -392,7 +390,7 @@ data "coder_parameter" "app_1_share" {
 }
 
 data "coder_parameter" "app_2_name" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 2 ? 1 : 0
   name         = "app_2_name"
   display_name = "Coder App #2: Name"
   type         = "string"
@@ -402,7 +400,7 @@ data "coder_parameter" "app_2_name" {
 }
 
 data "coder_parameter" "app_2_slug" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 2 ? 1 : 0
   name         = "app_2_slug"
   display_name = "Coder App #2: Slug"
   description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\nExample: *'adminer'*"
@@ -417,7 +415,7 @@ data "coder_parameter" "app_2_slug" {
 }
 
 data "coder_parameter" "app_2_url" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 2 ? 1 : 0
   name         = "app_2_url"
   display_name = "Coder App #2: URL"
   description  = "Internal service URL reachable from the workspace.\n\nExample: *'http://adminer:8080'*"
@@ -432,7 +430,7 @@ data "coder_parameter" "app_2_url" {
 }
 
 data "coder_parameter" "app_2_icon" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 2 ? 1 : 0
   name         = "app_2_icon"
   display_name = "Coder App #2: Icon"
   description  = "Icon path or emoji code for the app.\n\nExample: *'/icon/adminer.svg'*"
@@ -443,7 +441,7 @@ data "coder_parameter" "app_2_icon" {
 }
 
 data "coder_parameter" "app_2_share" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 2 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 2 ? 1 : 0
   name         = "app_2_share"
   display_name = "Coder App #2: Share Level"
   type         = "string"
@@ -465,7 +463,7 @@ data "coder_parameter" "app_2_share" {
 }
 
 data "coder_parameter" "app_3_name" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 3 ? 1 : 0
   name         = "app_3_name"
   display_name = "Coder App #3: Name"
   type         = "string"
@@ -475,7 +473,7 @@ data "coder_parameter" "app_3_name" {
 }
 
 data "coder_parameter" "app_3_slug" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 3 ? 1 : 0
   name         = "app_3_slug"
   display_name = "Coder App #3: Slug"
   description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\nExample: *'mailpit'*"
@@ -490,7 +488,7 @@ data "coder_parameter" "app_3_slug" {
 }
 
 data "coder_parameter" "app_3_url" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 3 ? 1 : 0
   name         = "app_3_url"
   display_name = "Coder App #3: URL"
   description  = "Internal service URL reachable from the workspace.\n\nExample: *'http://mailpit:8025'*"
@@ -505,7 +503,7 @@ data "coder_parameter" "app_3_url" {
 }
 
 data "coder_parameter" "app_3_icon" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 3 ? 1 : 0
   name         = "app_3_icon"
   display_name = "Coder App #3: Icon"
   description  = "Icon path or emoji code for the app.\n\nExample: *'https://mailpit.axllent.org/images/mailpit.svg'*"
@@ -516,7 +514,7 @@ data "coder_parameter" "app_3_icon" {
 }
 
 data "coder_parameter" "app_3_share" {
-  count        = data.coder_parameter.custom_coder_app_count[count.index] == 3 ? 1 : 0
+  count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 3 ? 1 : 0
   name         = "app_3_share"
   display_name = "Coder App #3: Share Level"
   type         = "string"
@@ -622,7 +620,8 @@ locals {
   preset_data     = local.selected_preset != "none" && local.selected_preset != null ? local.preset_configs[local.selected_preset] : null
 
   # Get the list of volume names from the parameter, plus any from presets
-  base_volume_names      = try(jsondecode(data.coder_parameter.additional_volumes[count.index].value), [])
+  # additional_volumes is a singleton (no count), so access .value directly
+  base_volume_names      = try(jsondecode(data.coder_parameter.additional_volumes.value), [])
   preset_volume_names    = local.preset_data != null ? local.preset_data.volumes : []
   volume_names_to_create = concat(local.base_volume_names, local.preset_volume_names)
 
@@ -630,45 +629,46 @@ locals {
   preset_containers = local.preset_data != null ? local.preset_data.containers : []
 
   # Build custom containers base list (no index yet)
+  # Each container_N parameter is defined with `count = ... ? 1 : 0`, so reference the [0] instance when present
   custom_containers_base = [
     {
-      name  = try(data.coder_parameter.container_1_name[count.index].value, "")
-      image = try(data.coder_parameter.container_1_image[count.index].value, "")
+      name  = try(data.coder_parameter.container_1_name[0].value, "")
+      image = try(data.coder_parameter.container_1_image[0].value, "")
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_1_volume_mounts[count.index].value, "")) :
+        for mount in split(",", try(data.coder_parameter.container_1_volume_mounts[0].value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
         if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
       env = [
-        for line in split("\n", try(data.coder_parameter.container_1_env_vars[count.index].value, "")) :
+        for line in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) :
         trimspace(line)
         if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
       ]
     },
     {
-      name  = try(data.coder_parameter.container_2_name[count.index].value, "")
-      image = try(data.coder_parameter.container_2_image[count.index].value, "")
+      name  = try(data.coder_parameter.container_2_name[0].value, "")
+      image = try(data.coder_parameter.container_2_image[0].value, "")
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_2_volume_mounts[count.index].value, "")) :
+        for mount in split(",", try(data.coder_parameter.container_2_volume_mounts[0].value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
         if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
       env = [
-        for line in split("\n", try(data.coder_parameter.container_2_env_vars[count.index].value, "")) :
+        for line in split("\n", try(data.coder_parameter.container_2_env_vars[0].value, "")) :
         trimspace(line)
         if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
       ]
     },
     {
-      name  = try(data.coder_parameter.container_3_name[count.index].value, "")
-      image = try(data.coder_parameter.container_3_image[count.index].value, "")
+      name  = try(data.coder_parameter.container_3_name[0].value, "")
+      image = try(data.coder_parameter.container_3_image[0].value, "")
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_3_volume_mounts[count.index].value, "")) :
+        for mount in split(",", try(data.coder_parameter.container_3_volume_mounts[0].value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
         if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
       env = [
-        for line in split("\n", try(data.coder_parameter.container_3_env_vars[count.index].value, "")) :
+        for line in split("\n", try(data.coder_parameter.container_3_env_vars[0].value, "")) :
         trimspace(line)
         if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
       ]
@@ -708,25 +708,25 @@ locals {
   # Build apps from fixed parameter slots, then filter empties
   custom_apps_raw = [
     {
-      name         = try(data.coder_parameter.app_1_name[count.index].value, "")
-      slug         = try(data.coder_parameter.app_1_slug[count.index].value, "")
-      icon         = try(data.coder_parameter.app_1_icon[count.index].value, "")
-      share        = try(data.coder_parameter.app_1_share[count.index].value, "owner")
-      original_url = try(data.coder_parameter.app_1_url[count.index].value, "")
+      name         = try(data.coder_parameter.app_1_name[0].value, "")
+      slug         = try(data.coder_parameter.app_1_slug[0].value, "")
+      icon         = try(data.coder_parameter.app_1_icon[0].value, "")
+      share        = try(data.coder_parameter.app_1_share[0].value, "owner")
+      original_url = try(data.coder_parameter.app_1_url[0].value, "")
     },
     {
-      name         = try(data.coder_parameter.app_2_name[count.index].value, "")
-      slug         = try(data.coder_parameter.app_2_slug[count.index].value, "")
-      icon         = try(data.coder_parameter.app_2_icon[count.index].value, "")
-      share        = try(data.coder_parameter.app_2_share[count.index].value, "owner")
-      original_url = try(data.coder_parameter.app_2_url[count.index].value, "")
+      name         = try(data.coder_parameter.app_2_name[0].value, "")
+      slug         = try(data.coder_parameter.app_2_slug[0].value, "")
+      icon         = try(data.coder_parameter.app_2_icon[0].value, "")
+      share        = try(data.coder_parameter.app_2_share[0].value, "owner")
+      original_url = try(data.coder_parameter.app_2_url[0].value, "")
     },
     {
-      name         = try(data.coder_parameter.app_3_name[count.index].value, "")
-      slug         = try(data.coder_parameter.app_3_slug[count.index].value, "")
-      icon         = try(data.coder_parameter.app_3_icon[count.index].value, "")
-      share        = try(data.coder_parameter.app_3_share[count.index].value, "owner")
-      original_url = try(data.coder_parameter.app_3_url[count.index].value, "")
+      name         = try(data.coder_parameter.app_3_name[0].value, "")
+      slug         = try(data.coder_parameter.app_3_slug[0].value, "")
+      icon         = try(data.coder_parameter.app_3_icon[0].value, "")
+      share        = try(data.coder_parameter.app_3_share[0].value, "owner")
+      original_url = try(data.coder_parameter.app_3_url[0].value, "")
     }
   ]
 
@@ -751,11 +751,12 @@ locals {
     for app in local.additional_apps :
     # Format: "local_port:remote_host:remote_port"
     # Handle URLs with or without explicit ports (default to 80 for http, 443 for https)
-    "${app.local_port}:${regex("https?://([^:/]+)", app.original_url)[0]}:${
-      can(regex("https?://[^:/]+:(\\d+)", app.original_url))
-      ? regex("https?://[^:/]+:(\\d+)", app.original_url)[0]
-      : (startswith(app.original_url, "https://") ? "443" : "80")
-    }"
+    format(
+      "%d:%s:%s",
+      app.local_port,
+      regex("https?://([^:/]+)", app.original_url)[0],
+      can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? regex("https?://[^:/]+:(\\d+)", app.original_url)[0] : (startswith(app.original_url, "https://") ? "443" : "80")
+    )
     if app.original_url != null && app.original_url != ""
   ])
 }
