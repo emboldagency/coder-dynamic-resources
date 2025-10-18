@@ -52,7 +52,7 @@ data "coder_parameter" "additional_volumes" {
   description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\nExample: *[\"my-cache\", \"shared-uploads\"]*"
   icon         = "/icon/folder.svg"
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
   order        = 110
@@ -126,7 +126,7 @@ data "coder_parameter" "container_1_ports" {
   description  = local.desc.container_ports
   icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
   order        = 203
@@ -138,7 +138,7 @@ data "coder_parameter" "container_1_volume_mounts" {
   display_name = "Container #1: Volume Mounts"
   description  = local.desc.volume_mounts
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   icon         = "/icon/folder.svg"
   mutable      = true
   default      = jsonencode([])
@@ -196,7 +196,7 @@ data "coder_parameter" "container_2_ports" {
   description  = local.desc.container_ports
   icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
   order        = 213
@@ -208,7 +208,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   display_name = "Container #2: Volume Mounts"
   description  = local.desc.volume_mounts
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   icon         = "/icon/folder.svg"
   mutable      = true
   default      = jsonencode([])
@@ -266,7 +266,7 @@ data "coder_parameter" "container_3_ports" {
   description  = local.desc.container_ports
   icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
   order        = 223
@@ -278,7 +278,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   display_name = "Container #3: Volume Mounts"
   description  = local.desc.volume_mounts
   type         = "list(string)"
-  form_type    = "tag_select"
+  form_type    = "tag-select"
   icon         = "/icon/folder.svg"
   mutable      = true
   default      = jsonencode([])
