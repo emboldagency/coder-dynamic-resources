@@ -47,23 +47,53 @@ data "coder_parameter" "quick_setup_preset" {
 
 # --- Section: Parameters for Additional Volumes ---
 data "coder_parameter" "additional_volumes" {
+  count        = local.selected_preset ? 1 : 0
   name         = "additional_volumes"
   display_name = "Additional Volumes to Create"
-  description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\n _Example: [\"my-cache\", \"shared-uploads\"] - each string becomes a Docker volume name you can mount into containers._"
+  description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\nExample: *[\"my-cache\", \"shared-uploads\"]*"
   icon         = "/icon/folder.svg"
   type         = "list(string)"
   mutable      = true
   default      = jsonencode([])
-  order = 110
+  order        = 110
+}
+
+data "coder_parameter" "custom_container_count" {
+  count        = local.selected_preset ? 1 : 0
+  name         = "custom_container_count"
+  display_name = "Custom Container Count"
+  description  = "Number of additional Docker containers to create (1-3). Leave as 0 to skip adding containers."
+  type         = "number"
+  form_type    = "slider"
+  default      = 0
+  validation {
+    min = 1
+    max = 3
+  }
+}
+
+data "coder_parameter" "custom_volume_count" {
+  count        = local.selected_preset ? 1 : 0
+  name         = "custom_volume_count"
+  display_name = "Custom Volume Count"
+  description  = "Number of additional Docker volumes to create (1-3). Leave as 0 to skip adding containers."
+  type         = "number"
+  form_type    = "slider"
+  default      = 0
+  validation {
+    min = 1
+    max = 3
+  }
 }
 
 # --- Fixed parameter sets for up to 3 containers (leave blank to skip) ---
 data "coder_parameter" "container_1_name" {
+  count        = data.coder_parameter.custom_container_count == 1 ? 1 : 0
   name         = "container_1_name"
   display_name = "Container #1: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\n _Example: 'redis', 'postgres', or 'my-service'._"
+  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\nExample: *'redis', 'postgres', or 'my-service'*"
   type         = "string"
-  icon         = "/emojis/1f4db.png"
+  icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
   default      = ""
   order        = 201
@@ -74,9 +104,10 @@ data "coder_parameter" "container_1_name" {
 }
 
 data "coder_parameter" "container_1_image" {
+  count        = data.coder_parameter.custom_container_count == 1 ? 1 : 0
   name         = "container_1_image"
   display_name = "Container #1: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\n _Example: 'postgres:15-alpine'._"
+  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\nExample: *'postgres:15-alpine'*"
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -89,10 +120,11 @@ data "coder_parameter" "container_1_image" {
 }
 
 data "coder_parameter" "container_1_ports" {
+  count        = data.coder_parameter.custom_container_count == 1 ? 1 : 0
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
-  description  = "Comma-separated internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host).\n\n _Example: '6379' or '8080, 3000'._"
-  icon         = "/emojis/1f50c.png"
+  description  = "Comma-separated internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host).\n\nExample: *'6379' or '8080, 3000'*"
+  icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "string"
   mutable      = true
   default      = ""
@@ -104,9 +136,10 @@ data "coder_parameter" "container_1_ports" {
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
+  count        = data.coder_parameter.custom_container_count == 1 ? 1 : 0
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
-  description  = "Comma-separated volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume.\n\n _Example: 'postgres-data:/var/lib/postgresql/data, uploads:/srv/uploads'._"
+  description  = "Comma-separated volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume.\n\nExample: *'postgres-data:/var/lib/postgresql/data, uploads:/srv/uploads'*"
   type         = "string"
   icon         = "/icon/folder.svg"
   mutable      = true
@@ -115,22 +148,24 @@ data "coder_parameter" "container_1_volume_mounts" {
 }
 
 data "coder_parameter" "container_1_env_vars" {
+  count        = data.coder_parameter.custom_container_count == 1 ? 1 : 0
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
-  description  = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\n _Example:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold_"
+  description  = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\nExample:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold"
   type         = "string"
-  icon         = "/emojis/2733.png"
+  icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
   order        = 205
 }
 
 data "coder_parameter" "container_2_name" {
+  count        = data.coder_parameter.custom_container_count == 2 ? 1 : 0
   name         = "container_2_name"
   display_name = "Container #2: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\n _Example: 'elastic'._"
+  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\nExample: *'elastic'*"
   type         = "string"
-  icon         = "/emojis/1f4db.png"
+  icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
   default      = ""
   order        = 211
@@ -141,9 +176,10 @@ data "coder_parameter" "container_2_name" {
 }
 
 data "coder_parameter" "container_2_image" {
+  count        = data.coder_parameter.custom_container_count == 2 ? 1 : 0
   name         = "container_2_image"
   display_name = "Container #2: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\n _Example: 'redis:7-alpine'._"
+  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\nExample: *'redis:7-alpine'*"
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -156,10 +192,11 @@ data "coder_parameter" "container_2_image" {
 }
 
 data "coder_parameter" "container_2_ports" {
+  count        = data.coder_parameter.custom_container_count == 2 ? 1 : 0
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
-  description  = "Comma-separated internal container ports (1-65535).\n\n _Example: '27017' or '8080, 5000'._"
-  icon         = "/emojis/1f50c.png"
+  description  = "Comma-separated internal container ports (1-65535).\n\nExample: *'27017' or '8080, 5000'*"
+  icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "string"
   mutable      = true
   default      = ""
@@ -171,9 +208,10 @@ data "coder_parameter" "container_2_ports" {
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
+  count        = data.coder_parameter.custom_container_count == 2 ? 1 : 0
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
-  description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\n _Example: 'mongo-data:/data/db'._"
+  description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\nExample: *'mongo-data:/data/db'*"
   type         = "string"
   icon         = "/icon/folder.svg"
   mutable      = true
@@ -182,22 +220,24 @@ data "coder_parameter" "container_2_volume_mounts" {
 }
 
 data "coder_parameter" "container_2_env_vars" {
+  count        = data.coder_parameter.custom_container_count == 2 ? 1 : 0
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
   description  = "One environment variable per line, e.g.\nMONGO_INITDB_ROOT_USERNAME=embold\nMONGO_INITDB_ROOT_PASSWORD=embold"
   type         = "string"
-  icon         = "/emojis/2733.png"
+  icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
   order        = 215
 }
 
 data "coder_parameter" "container_3_name" {
+  count        = data.coder_parameter.custom_container_count == 3 ? 1 : 0
   name         = "container_3_name"
   display_name = "Container #3: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\n _Example: 'my-service'._"
+  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\nExample: *'my-service'*"
   type         = "string"
-  icon         = "/emojis/1f4db.png"
+  icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
   default      = ""
   order        = 221
@@ -208,9 +248,10 @@ data "coder_parameter" "container_3_name" {
 }
 
 data "coder_parameter" "container_3_image" {
+  count        = data.coder_parameter.custom_container_count == 3 ? 1 : 0
   name         = "container_3_image"
   display_name = "Container #3: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\n _Example: 'nginx:stable'._"
+  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\nExample: *'nginx:stable'*"
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -223,10 +264,11 @@ data "coder_parameter" "container_3_image" {
 }
 
 data "coder_parameter" "container_3_ports" {
+  count        = data.coder_parameter.custom_container_count == 3 ? 1 : 0
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
-  description  = "Comma-separated internal container ports (1-65535).\n\n _Example: '8080'._"
-  icon         = "/emojis/1f50c.png"
+  description  = "Comma-separated internal container ports (1-65535).\n\nExample: *'8080'*"
+  icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "string"
   mutable      = true
   default      = ""
@@ -238,9 +280,10 @@ data "coder_parameter" "container_3_ports" {
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
+  count        = data.coder_parameter.custom_container_count == 3 ? 1 : 0
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
-  description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\n _Example: 'uploads:/srv/uploads'._"
+  description  = "Comma-separated volume mounts.\n\nExample: *'uploads:/srv/uploads,my-volume:/path/in/container'*"
   type         = "string"
   icon         = "/icon/folder.svg"
   mutable      = true
@@ -249,20 +292,36 @@ data "coder_parameter" "container_3_volume_mounts" {
 }
 
 data "coder_parameter" "container_3_env_vars" {
+  count        = data.coder_parameter.custom_container_count == 3 ? 1 : 0
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
-  description  = "One environment variable per line, e.g.\nKEY=value\nAnother_KEY=another_value"
+  description  = "One environment variable per line.\n\nExample:*\nKEY=value\nAnother_KEY=another_value*"
+  form_type    = "textarea"
   type         = "string"
-  icon         = "/emojis/2733.png"
+  icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
   order        = 225
 }
 
+data "coder_parameter" "custom_coder_app_count" {
+  name         = "custom_coder_app_count"
+  display_name = "Custom Coder App Count"
+  description  = "Number of additional Coder Apps to create (1-3). Leave as 0 to skip adding coder apps."
+  type         = "number"
+  form_type    = "slider"
+  default      = 0
+  validation {
+    min = 1
+    max = 3
+  }
+}
+
 # --- Fixed parameter sets for up to 3 additional Coder apps ---
 data "coder_parameter" "app_1_name" {
+  count        = data.coder_parameter.custom_coder_app_count == 1 ? 1 : 0
   name         = "app_1_name"
-  display_name = "App #1: Name"
+  display_name = "Coder App #1: Name"
   type         = "string"
   mutable      = true
   default      = ""
@@ -270,9 +329,10 @@ data "coder_parameter" "app_1_name" {
 }
 
 data "coder_parameter" "app_1_slug" {
+  count        = data.coder_parameter.custom_coder_app_count == 1 ? 1 : 0
   name         = "app_1_slug"
-  display_name = "App #1: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\n _Example: 'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping._"
+  display_name = "Coder App #1: Slug"
+  description  = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\nExample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -284,9 +344,10 @@ data "coder_parameter" "app_1_slug" {
 }
 
 data "coder_parameter" "app_1_url" {
+  count        = data.coder_parameter.custom_coder_app_count == 1 ? 1 : 0
   name         = "app_1_url"
-  display_name = "App #1: URL"
-  description  = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\n _Example: 'http://redis:6379' or 'http://localhost:9000/path'._"
+  display_name = "Coder App #1: URL"
+  description  = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\nExample: *'http://redis:6379' or 'http://localhost:9000/path'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -298,9 +359,10 @@ data "coder_parameter" "app_1_url" {
 }
 
 data "coder_parameter" "app_1_icon" {
+  count        = data.coder_parameter.custom_coder_app_count == 1 ? 1 : 0
   name         = "app_1_icon"
-  display_name = "App #1: Icon"
-  description  = "Icon path or emoji code for the app.\n\n _Example: '/icon/redis.svg' or '/emojis/1f310.png'._"
+  display_name = "Coder App #1: Icon"
+  description  = "Icon path or emoji code for the app. \n\nExample: *'/icon/redis.svg' or '/emojis/1f310.png'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -308,8 +370,9 @@ data "coder_parameter" "app_1_icon" {
 }
 
 data "coder_parameter" "app_1_share" {
+  count        = data.coder_parameter.custom_coder_app_count == 1 ? 1 : 0
   name         = "app_1_share"
-  display_name = "App #1: Share Level"
+  display_name = "Coder App #1: Share Level"
   type         = "string"
   default      = "owner"
   mutable      = true
@@ -329,8 +392,9 @@ data "coder_parameter" "app_1_share" {
 }
 
 data "coder_parameter" "app_2_name" {
+  count        = data.coder_parameter.custom_coder_app_count == 2 ? 1 : 0
   name         = "app_2_name"
-  display_name = "App #2: Name"
+  display_name = "Coder App #2: Name"
   type         = "string"
   mutable      = true
   default      = ""
@@ -338,9 +402,10 @@ data "coder_parameter" "app_2_name" {
 }
 
 data "coder_parameter" "app_2_slug" {
+  count        = data.coder_parameter.custom_coder_app_count == 2 ? 1 : 0
   name         = "app_2_slug"
-  display_name = "App #2: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\n _Example: 'adminer'._"
+  display_name = "Coder App #2: Slug"
+  description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\nExample: *'adminer'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -352,9 +417,10 @@ data "coder_parameter" "app_2_slug" {
 }
 
 data "coder_parameter" "app_2_url" {
+  count        = data.coder_parameter.custom_coder_app_count == 2 ? 1 : 0
   name         = "app_2_url"
-  display_name = "App #2: URL"
-  description  = "Internal service URL reachable from the workspace.\n\n _Example: 'http://adminer:8080'._"
+  display_name = "Coder App #2: URL"
+  description  = "Internal service URL reachable from the workspace.\n\nExample: *'http://adminer:8080'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -366,9 +432,10 @@ data "coder_parameter" "app_2_url" {
 }
 
 data "coder_parameter" "app_2_icon" {
+  count        = data.coder_parameter.custom_coder_app_count == 2 ? 1 : 0
   name         = "app_2_icon"
-  display_name = "App #2: Icon"
-  description  = "Icon path or emoji code for the app.\n\n _Example: '/icon/adminer.svg'._"
+  display_name = "Coder App #2: Icon"
+  description  = "Icon path or emoji code for the app.\n\nExample: *'/icon/adminer.svg'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -376,8 +443,9 @@ data "coder_parameter" "app_2_icon" {
 }
 
 data "coder_parameter" "app_2_share" {
+  count        = data.coder_parameter.custom_coder_app_count == 2 ? 1 : 0
   name         = "app_2_share"
-  display_name = "App #2: Share Level"
+  display_name = "Coder App #2: Share Level"
   type         = "string"
   default      = "owner"
   mutable      = true
@@ -397,8 +465,9 @@ data "coder_parameter" "app_2_share" {
 }
 
 data "coder_parameter" "app_3_name" {
+  count        = data.coder_parameter.custom_coder_app_count == 3 ? 1 : 0
   name         = "app_3_name"
-  display_name = "App #3: Name"
+  display_name = "Coder App #3: Name"
   type         = "string"
   mutable      = true
   default      = ""
@@ -406,9 +475,10 @@ data "coder_parameter" "app_3_name" {
 }
 
 data "coder_parameter" "app_3_slug" {
+  count        = data.coder_parameter.custom_coder_app_count == 3 ? 1 : 0
   name         = "app_3_slug"
-  display_name = "App #3: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\n _Example: 'mailpit'._"
+  display_name = "Coder App #3: Slug"
+  description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\nExample: *'mailpit'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -420,9 +490,10 @@ data "coder_parameter" "app_3_slug" {
 }
 
 data "coder_parameter" "app_3_url" {
+  count        = data.coder_parameter.custom_coder_app_count == 3 ? 1 : 0
   name         = "app_3_url"
-  display_name = "App #3: URL"
-  description  = "Internal service URL reachable from the workspace.\n\n _Example: 'http://mailpit:8025'._"
+  display_name = "Coder App #3: URL"
+  description  = "Internal service URL reachable from the workspace.\n\nExample: *'http://mailpit:8025'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -434,9 +505,10 @@ data "coder_parameter" "app_3_url" {
 }
 
 data "coder_parameter" "app_3_icon" {
+  count        = data.coder_parameter.custom_coder_app_count == 3 ? 1 : 0
   name         = "app_3_icon"
-  display_name = "App #3: Icon"
-  description  = "Icon path or emoji code for the app.\n\n _Example: 'https://mailpit.axllent.org/images/mailpit.svg'._"
+  display_name = "Coder App #3: Icon"
+  description  = "Icon path or emoji code for the app.\n\nExample: *'https://mailpit.axllent.org/images/mailpit.svg'*"
   type         = "string"
   mutable      = true
   default      = ""
@@ -444,8 +516,9 @@ data "coder_parameter" "app_3_icon" {
 }
 
 data "coder_parameter" "app_3_share" {
+  count        = data.coder_parameter.custom_coder_app_count == 3 ? 1 : 0
   name         = "app_3_share"
-  display_name = "App #3: Share Level"
+  display_name = "Coder App #3: Share Level"
   type         = "string"
   default      = "owner"
   mutable      = true
