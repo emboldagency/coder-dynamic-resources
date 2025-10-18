@@ -121,27 +121,25 @@ data "coder_parameter" "container_1_ports" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
-  description  = "Comma-separated internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host).\n\nExample: *'6379' or '8080, 3000'*"
+  description  = "Select internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host). Use the tag selector to add one or more ports.\n\nExample: *'6379' or '8080' and '3000'*"
   icon         = "/emojis/1f50c.png" # Electrical plug
-  type         = "string"
+  type         = "list(string)"
+  form_type    = "tag_select"
   mutable      = true
-  default      = ""
+  default      = jsonencode([])
   order        = 203
-  validation {
-    regex = "^[0-9, ]*$"
-    error = "Ports must be numbers separated by commas and spaces."
-  }
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
-  description  = "Comma-separated volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume.\n\nExample: *'postgres-data:/var/lib/postgresql/data, uploads:/srv/uploads'*"
-  type         = "string"
+  description  = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.\n\nExample: *'postgres-data:/var/lib/postgresql/data' or 'uploads:/srv/uploads'*"
+  type         = "list(string)"
+  form_type    = "tag_select"
   icon         = "/icon/folder.svg"
   mutable      = true
-  default      = ""
+  default      = jsonencode([])
   order        = 204
 }
 
@@ -193,27 +191,25 @@ data "coder_parameter" "container_2_ports" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
-  description  = "Comma-separated internal container ports (1-65535).\n\nExample: *'27017' or '8080, 5000'*"
+  description  = "Select internal container ports (1-65535) to expose to the reverse proxy. Use the tag selector to add one or more ports.\n\nExample: *'27017' or '8080'*"
   icon         = "/emojis/1f50c.png" # Electrical plug
-  type         = "string"
+  type         = "list(string)"
+  form_type    = "tag_select"
   mutable      = true
-  default      = ""
+  default      = jsonencode([])
   order        = 213
-  validation {
-    regex = "^[0-9, ]*$"
-    error = "Ports must be numbers separated by commas and spaces."
-  }
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
-  description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\nExample: *'mongo-data:/data/db'*"
-  type         = "string"
+  description  = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. Use the tag selector to add multiple mounts.\n\nExample: *'mongo-data:/data/db'*"
+  type         = "list(string)"
+  form_type    = "tag_select"
   icon         = "/icon/folder.svg"
   mutable      = true
-  default      = ""
+  default      = jsonencode([])
   order        = 214
 }
 
@@ -265,27 +261,25 @@ data "coder_parameter" "container_3_ports" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
-  description  = "Comma-separated internal container ports (1-65535).\n\nExample: *'8080'*"
+  description  = "Select internal container ports (1-65535) to expose to the reverse proxy. Use the tag selector to add one or more ports.\n\nExample: *'8080'*"
   icon         = "/emojis/1f50c.png" # Electrical plug
-  type         = "string"
+  type         = "list(string)"
+  form_type    = "tag_select"
   mutable      = true
-  default      = ""
+  default      = jsonencode([])
   order        = 223
-  validation {
-    regex = "^[0-9, ]*$"
-    error = "Ports must be numbers separated by commas and spaces."
-  }
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
-  description  = "Comma-separated volume mounts.\n\nExample: *'uploads:/srv/uploads,my-volume:/path/in/container'*"
-  type         = "string"
+  description  = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. Use the tag selector to add multiple mounts.\n\nExample: *'uploads:/srv/uploads' or 'my-volume:/path/in/container'*"
+  type         = "list(string)"
+  form_type    = "tag_select"
   icon         = "/icon/folder.svg"
   mutable      = true
-  default      = ""
+  default      = jsonencode([])
   order        = 224
 }
 
