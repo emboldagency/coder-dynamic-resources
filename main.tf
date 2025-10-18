@@ -556,16 +556,11 @@ locals {
   # Construct containers from preset (if selected) and custom parameters
   preset_containers = local.preset_data != null ? local.preset_data.containers : []
 
-  # Build custom containers base list (no idx yet)
+  # Build custom containers base list (no index yet)
   custom_containers_base = [
     {
       name  = try(data.coder_parameter.container_1_name.value, "")
       image = try(data.coder_parameter.container_1_image.value, "")
-      ports = [
-        for p in split(",", try(data.coder_parameter.container_1_ports.value, "")) :
-        tonumber(trimspace(p))
-        if trimspace(p) != "" && can(tonumber(trimspace(p))) && tonumber(trimspace(p)) >= 1 && tonumber(trimspace(p)) <= 65535
-      ]
       mounts = {
         for mount in split(",", try(data.coder_parameter.container_1_volume_mounts.value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
@@ -580,11 +575,6 @@ locals {
     {
       name  = try(data.coder_parameter.container_2_name.value, "")
       image = try(data.coder_parameter.container_2_image.value, "")
-      ports = [
-        for p in split(",", try(data.coder_parameter.container_2_ports.value, "")) :
-        tonumber(trimspace(p))
-        if trimspace(p) != "" && can(tonumber(trimspace(p))) && tonumber(trimspace(p)) >= 1 && tonumber(trimspace(p)) <= 65535
-      ]
       mounts = {
         for mount in split(",", try(data.coder_parameter.container_2_volume_mounts.value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
@@ -599,11 +589,6 @@ locals {
     {
       name  = try(data.coder_parameter.container_3_name.value, "")
       image = try(data.coder_parameter.container_3_image.value, "")
-      ports = [
-        for p in split(",", try(data.coder_parameter.container_3_ports.value, "")) :
-        tonumber(trimspace(p))
-        if trimspace(p) != "" && can(tonumber(trimspace(p))) && tonumber(trimspace(p)) >= 1 && tonumber(trimspace(p)) <= 65535
-      ]
       mounts = {
         for mount in split(",", try(data.coder_parameter.container_3_volume_mounts.value, "")) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
@@ -618,17 +603,17 @@ locals {
   ]
 
   custom_containers = [
-    for i, c in tolist(local.custom_containers_base) : merge(c, { custom_idx = i + 1 })
+    for i, c in tolist(local.custom_containers_base) : merge(c, { custom_index = i + 1 })
     if c.name != "" && c.image != ""
   ]
 
   # Build a single map for for_each: preset containers by name, custom containers by custom-N
-  # Key preset containers as preset-<idx> to avoid collisions with externally-named containers
+  # Key preset containers as preset-<index> to avoid collisions with externally-named containers
   preset_containers_map = { for i, c in tolist(local.preset_containers) : "preset-${i + 1}" => c }
 
   all_containers_map = merge(
     local.preset_containers_map,
-    { for c in local.custom_containers : "custom-${c.custom_idx}" => c }
+    { for c in local.custom_containers : "custom-${c.custom_index}" => c }
   )
 
   # Combine preset and custom containers
@@ -674,14 +659,14 @@ locals {
 
   # Assign ports after preset apps and build proxy URLs
   custom_apps = [
-    for idx, app in tolist(local.custom_apps_raw) : {
+    for index, app in tolist(local.custom_apps_raw) : {
       name         = app.name
       slug         = app.slug
       icon         = app.icon
       share        = app.share
       original_url = app.original_url
-      local_port   = 9000 + length(local.preset_apps) + idx
-      proxy_url    = "http://localhost:${9000 + length(local.preset_apps) + idx}"
+      local_port   = length(local.preset_apps) + index
+      proxy_url    = "http://localhost:${length(local.preset_apps) + index}"
     } if app.name != "" && app.slug != ""
   ]
 
@@ -735,7 +720,7 @@ resource "docker_container" "dynamic_resource_container" {
   for_each = data.coder_workspace.me.start_count > 0 ? local.all_containers_map : {}
   name = (
     startswith(each.key, "custom-")
-    ? "${var.resource_name_base}-custom-${each.value.custom_idx}"
+    ? "${var.resource_name_base}-custom-${each.value.custom_index}"
     : "${var.resource_name_base}-${each.value.name}"
   )
   image        = each.value.image
