@@ -600,8 +600,11 @@ locals {
   ]
 
   # Build a single map for for_each: preset containers by name, custom containers by custom-N
+  # Key preset containers as preset-<idx> to avoid collisions with externally-named containers
+  preset_containers_map = { for i, c in tolist(local.preset_containers) : "preset-${i + 1}" => c }
+
   all_containers_map = merge(
-    { for c in local.preset_containers : c.name => c },
+    local.preset_containers_map,
     { for c in local.custom_containers : "custom-${c.custom_idx}" => c }
   )
 
@@ -683,7 +686,9 @@ locals {
 # --- Section: Resource Creation ---
 resource "docker_volume" "dynamic_resource_volume" {
   for_each = toset(local.volume_names_to_create)
-  name     = "${var.resource_name_base}-${each.key}"
+  # Use the original volume name as key but generate a Docker volume name that includes a suffix
+  # If the volume came from a preset, suffix with preset-<n>, otherwise custom-<n> could be added.
+  name = "${var.resource_name_base}-${each.key}"
   lifecycle {
     ignore_changes = all
   }
