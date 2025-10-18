@@ -89,7 +89,7 @@ data "coder_parameter" "container_1_name" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_name"
   display_name = "Container #1: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\nExample: *'redis', 'postgres', or 'my-service'*"
+  description  = local.desc.container_name
   type         = "string"
   icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
@@ -105,7 +105,7 @@ data "coder_parameter" "container_1_image" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_image"
   display_name = "Container #1: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\nExample: *'postgres:15-alpine'*"
+  description  = local.desc.container_image
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -121,7 +121,7 @@ data "coder_parameter" "container_1_ports" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
-  description  = "Select internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host). Use the tag selector to add one or more ports.\n\nExample: *'6379' or '8080' and '3000'*"
+  description  = local.desc.container_ports
   icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "list(string)"
   form_type    = "tag_select"
@@ -134,7 +134,7 @@ data "coder_parameter" "container_1_volume_mounts" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
-  description  = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.\n\nExample: *'postgres-data:/var/lib/postgresql/data' or 'uploads:/srv/uploads'*"
+  description  = local.desc.volume_mounts
   type         = "list(string)"
   form_type    = "tag_select"
   icon         = "/icon/folder.svg"
@@ -147,7 +147,7 @@ data "coder_parameter" "container_1_env_vars" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
-  description  = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\nExample:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold"
+  description  = local.desc.env_vars
   type         = "string"
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
@@ -159,7 +159,7 @@ data "coder_parameter" "container_2_name" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_name"
   display_name = "Container #2: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\nExample: *'elastic'*"
+  description  = local.desc.container_name
   type         = "string"
   icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
@@ -175,7 +175,7 @@ data "coder_parameter" "container_2_image" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_image"
   display_name = "Container #2: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\nExample: *'redis:7-alpine'*"
+  description  = local.desc.container_image
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -191,7 +191,7 @@ data "coder_parameter" "container_2_ports" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
-  description  = "Select internal container ports (1-65535) to expose to the reverse proxy. Use the tag selector to add one or more ports.\n\nExample: *'27017' or '8080'*"
+  description  = local.desc.container_ports
   icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "list(string)"
   form_type    = "tag_select"
@@ -204,7 +204,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
-  description  = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. Use the tag selector to add multiple mounts.\n\nExample: *'mongo-data:/data/db'*"
+  description  = local.desc.volume_mounts
   type         = "list(string)"
   form_type    = "tag_select"
   icon         = "/icon/folder.svg"
@@ -217,7 +217,7 @@ data "coder_parameter" "container_2_env_vars" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
-  description  = "One environment variable per line, e.g.\nMONGO_INITDB_ROOT_USERNAME=embold\nMONGO_INITDB_ROOT_PASSWORD=embold"
+  description  = local.desc.env_vars
   type         = "string"
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
@@ -229,7 +229,7 @@ data "coder_parameter" "container_3_name" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_name"
   display_name = "Container #3: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\nExample: *'my-service'*"
+  description  = local.desc.container_name
   type         = "string"
   icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
@@ -245,7 +245,7 @@ data "coder_parameter" "container_3_image" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_image"
   display_name = "Container #3: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\nExample: *'nginx:stable'*"
+  description  = local.desc.container_image
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -261,7 +261,7 @@ data "coder_parameter" "container_3_ports" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
-  description  = "Select internal container ports (1-65535) to expose to the reverse proxy. Use the tag selector to add one or more ports.\n\nExample: *'8080'*"
+  description  = local.desc.container_ports
   icon         = "/emojis/1f50c.png" # Electrical plug
   type         = "list(string)"
   form_type    = "tag_select"
@@ -274,7 +274,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
-  description  = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. Use the tag selector to add multiple mounts.\n\nExample: *'uploads:/srv/uploads' or 'my-volume:/path/in/container'*"
+  description  = local.desc.volume_mounts
   type         = "list(string)"
   form_type    = "tag_select"
   icon         = "/icon/folder.svg"
@@ -287,7 +287,7 @@ data "coder_parameter" "container_3_env_vars" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
-  description  = "One environment variable per line.\n\nExample:*\nKEY=value\nAnother_KEY=another_value*"
+  description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
@@ -324,7 +324,7 @@ data "coder_parameter" "app_1_slug" {
   count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_slug"
   display_name = "Coder App #1: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\nExample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*"
+  description  = local.desc.app_slug
   type         = "string"
   mutable      = true
   default      = ""
@@ -339,7 +339,7 @@ data "coder_parameter" "app_1_url" {
   count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_url"
   display_name = "Coder App #1: URL"
-  description  = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\nExample: *'http://redis:6379' or 'http://localhost:9000/path'*"
+  description  = local.desc.app_url
   type         = "string"
   mutable      = true
   default      = ""
@@ -354,7 +354,7 @@ data "coder_parameter" "app_1_icon" {
   count        = try(tonumber(data.coder_parameter.custom_coder_app_count.value), 0) >= 1 ? 1 : 0
   name         = "app_1_icon"
   display_name = "Coder App #1: Icon"
-  description  = "Icon path or emoji code for the app. \n\nExample: *'/icon/redis.svg' or '/emojis/1f310.png'*"
+  description  = local.desc.app_icon
   type         = "string"
   mutable      = true
   default      = ""
@@ -540,6 +540,17 @@ locals {
     ? lower(replace(replace(local.sanitized_workspace_name_raw, "-", "_"), " ", "_"))
     : "workspace"
   )
+  # Shared description templates to avoid repeating long strings across parameter blocks
+  desc = {
+    container_name = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\nExample: *'redis', 'postgres', or 'my-service'*"
+    container_image = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\nExample: *'postgres:15-alpine'*"
+    container_ports = "Select internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host). Use the tag selector to add one or more ports.\n\nExample: *'6379' or '8080' and '3000'*"
+    volume_mounts = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.\n\nExample: *'postgres-data:/var/lib/postgresql/data' or 'uploads:/srv/uploads'*"
+    env_vars = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\nExample:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold"
+    app_slug = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\nExample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*"
+    app_url = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\nExample: *'http://redis:6379' or 'http://localhost:9000/path'*"
+    app_icon = "Icon path or emoji code for the app. \n\nExample: *'/icon/redis.svg' or '/emojis/1f310.png'*"
+  }
   # Preset configurations for common services
   preset_configs = {
     redis = {
@@ -629,9 +640,9 @@ locals {
       name  = try(data.coder_parameter.container_1_name[0].value, "")
       image = try(data.coder_parameter.container_1_image[0].value, "")
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_1_volume_mounts[0].value, "")) :
+        for mount in try(jsondecode(data.coder_parameter.container_1_volume_mounts[0].value), []) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
+        if mount != null && mount != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
       env = [
         for line in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) :
@@ -643,9 +654,9 @@ locals {
       name  = try(data.coder_parameter.container_2_name[0].value, "")
       image = try(data.coder_parameter.container_2_image[0].value, "")
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_2_volume_mounts[0].value, "")) :
+        for mount in try(jsondecode(data.coder_parameter.container_2_volume_mounts[0].value), []) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
+        if mount != null && mount != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
       env = [
         for line in split("\n", try(data.coder_parameter.container_2_env_vars[0].value, "")) :
@@ -657,9 +668,9 @@ locals {
       name  = try(data.coder_parameter.container_3_name[0].value, "")
       image = try(data.coder_parameter.container_3_image[0].value, "")
       mounts = {
-        for mount in split(",", try(data.coder_parameter.container_3_volume_mounts[0].value, "")) :
+        for mount in try(jsondecode(data.coder_parameter.container_3_volume_mounts[0].value), []) :
         trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if trimspace(mount) != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
+        if mount != null && mount != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
       }
       env = [
         for line in split("\n", try(data.coder_parameter.container_3_env_vars[0].value, "")) :
