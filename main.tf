@@ -49,19 +49,19 @@ data "coder_parameter" "quick_setup_preset" {
 data "coder_parameter" "additional_volumes" {
   name         = "additional_volumes"
   display_name = "Additional Volumes to Create"
-  description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below."
+  description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\n _Example: [\"my-cache\", \"shared-uploads\"] - each string becomes a Docker volume name you can mount into containers._"
   icon         = "/icon/folder.svg"
   type         = "list(string)"
   mutable      = true
   default      = jsonencode([])
-  order        = 110
+  order = 110
 }
 
 # --- Fixed parameter sets for up to 3 containers (leave blank to skip) ---
 data "coder_parameter" "container_1_name" {
   name         = "container_1_name"
   display_name = "Container #1: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container."
+  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\n _Example: 'redis', 'postgres', or 'my-service'._"
   type         = "string"
   icon         = "/emojis/1f4db.png"
   mutable      = true
@@ -76,7 +76,7 @@ data "coder_parameter" "container_1_name" {
 data "coder_parameter" "container_1_image" {
   name         = "container_1_image"
   display_name = "Container #1: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8')"
+  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\n _Example: 'postgres:15-alpine'._"
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -91,7 +91,7 @@ data "coder_parameter" "container_1_image" {
 data "coder_parameter" "container_1_ports" {
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
-  description  = "Comma-separated ports (1-65535), e.g., '6379, 8080'"
+  description  = "Comma-separated internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host).\n\n _Example: '6379' or '8080, 3000'._"
   icon         = "/emojis/1f50c.png"
   type         = "string"
   mutable      = true
@@ -106,7 +106,7 @@ data "coder_parameter" "container_1_ports" {
 data "coder_parameter" "container_1_volume_mounts" {
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
-  description  = "e.g., 'my-volume:/path/in/container, another-vol:/another/path'"
+  description  = "Comma-separated volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume.\n\n _Example: 'postgres-data:/var/lib/postgresql/data, uploads:/srv/uploads'._"
   type         = "string"
   icon         = "/icon/folder.svg"
   mutable      = true
@@ -117,7 +117,7 @@ data "coder_parameter" "container_1_volume_mounts" {
 data "coder_parameter" "container_1_env_vars" {
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
-  description  = "One per line, e.g., 'POSTGRES_USER=embold'"
+  description  = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\n _Example:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold_"
   type         = "string"
   icon         = "/emojis/2733.png"
   mutable      = true
@@ -128,7 +128,7 @@ data "coder_parameter" "container_1_env_vars" {
 data "coder_parameter" "container_2_name" {
   name         = "container_2_name"
   display_name = "Container #2: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container."
+  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\n _Example: 'elastic'._"
   type         = "string"
   icon         = "/emojis/1f4db.png"
   mutable      = true
@@ -143,7 +143,7 @@ data "coder_parameter" "container_2_name" {
 data "coder_parameter" "container_2_image" {
   name         = "container_2_image"
   display_name = "Container #2: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8')"
+  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\n _Example: 'redis:7-alpine'._"
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -158,7 +158,7 @@ data "coder_parameter" "container_2_image" {
 data "coder_parameter" "container_2_ports" {
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
-  description  = "Comma-separated ports (1-65535)"
+  description  = "Comma-separated internal container ports (1-65535).\n\n _Example: '27017' or '8080, 5000'._"
   icon         = "/emojis/1f50c.png"
   type         = "string"
   mutable      = true
@@ -173,7 +173,7 @@ data "coder_parameter" "container_2_ports" {
 data "coder_parameter" "container_2_volume_mounts" {
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
-  description  = "e.g., 'my-volume:/path/in/container, another-vol:/another/path'"
+  description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\n _Example: 'mongo-data:/data/db'._"
   type         = "string"
   icon         = "/icon/folder.svg"
   mutable      = true
@@ -184,7 +184,7 @@ data "coder_parameter" "container_2_volume_mounts" {
 data "coder_parameter" "container_2_env_vars" {
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
-  description  = "One per line, e.g., 'POSTGRES_USER=embold'"
+  description  = "One environment variable per line, e.g.\nMONGO_INITDB_ROOT_USERNAME=embold\nMONGO_INITDB_ROOT_PASSWORD=embold"
   type         = "string"
   icon         = "/emojis/2733.png"
   mutable      = true
@@ -195,7 +195,7 @@ data "coder_parameter" "container_2_env_vars" {
 data "coder_parameter" "container_3_name" {
   name         = "container_3_name"
   display_name = "Container #3: Name"
-  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container."
+  description  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container.\n\n _Example: 'my-service'._"
   type         = "string"
   icon         = "/emojis/1f4db.png"
   mutable      = true
@@ -210,7 +210,7 @@ data "coder_parameter" "container_3_name" {
 data "coder_parameter" "container_3_image" {
   name         = "container_3_image"
   display_name = "Container #3: Image"
-  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8')"
+  description  = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8').\n\n _Example: 'nginx:stable'._"
   icon         = "/icon/docker.svg"
   type         = "string"
   mutable      = true
@@ -225,7 +225,7 @@ data "coder_parameter" "container_3_image" {
 data "coder_parameter" "container_3_ports" {
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
-  description  = "Comma-separated ports (1-65535)"
+  description  = "Comma-separated internal container ports (1-65535).\n\n _Example: '8080'._"
   icon         = "/emojis/1f50c.png"
   type         = "string"
   mutable      = true
@@ -240,7 +240,7 @@ data "coder_parameter" "container_3_ports" {
 data "coder_parameter" "container_3_volume_mounts" {
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
-  description  = "e.g., 'my-volume:/path/in/container, another-vol:/another/path'"
+  description  = "Comma-separated volume mounts like 'my-volume:/path/in/container'.\n\n _Example: 'uploads:/srv/uploads'._"
   type         = "string"
   icon         = "/icon/folder.svg"
   mutable      = true
@@ -251,7 +251,7 @@ data "coder_parameter" "container_3_volume_mounts" {
 data "coder_parameter" "container_3_env_vars" {
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
-  description  = "One per line, e.g., 'POSTGRES_USER=embold'"
+  description  = "One environment variable per line, e.g.\nKEY=value\nAnother_KEY=another_value"
   type         = "string"
   icon         = "/emojis/2733.png"
   mutable      = true
@@ -272,7 +272,7 @@ data "coder_parameter" "app_1_name" {
 data "coder_parameter" "app_1_slug" {
   name         = "app_1_slug"
   display_name = "App #1: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores)"
+  description  = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\n _Example: 'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -286,7 +286,7 @@ data "coder_parameter" "app_1_slug" {
 data "coder_parameter" "app_1_url" {
   name         = "app_1_url"
   display_name = "App #1: URL"
-  description  = "Internal service URL"
+  description  = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\n _Example: 'http://redis:6379' or 'http://localhost:9000/path'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -300,7 +300,7 @@ data "coder_parameter" "app_1_url" {
 data "coder_parameter" "app_1_icon" {
   name         = "app_1_icon"
   display_name = "App #1: Icon"
-  description  = "e.g., /icon/redis.svg or /emojis/1f310.png"
+  description  = "Icon path or emoji code for the app.\n\n _Example: '/icon/redis.svg' or '/emojis/1f310.png'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -340,7 +340,7 @@ data "coder_parameter" "app_2_name" {
 data "coder_parameter" "app_2_slug" {
   name         = "app_2_slug"
   display_name = "App #2: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores)"
+  description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\n _Example: 'adminer'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -354,7 +354,7 @@ data "coder_parameter" "app_2_slug" {
 data "coder_parameter" "app_2_url" {
   name         = "app_2_url"
   display_name = "App #2: URL"
-  description  = "Internal service URL"
+  description  = "Internal service URL reachable from the workspace.\n\n _Example: 'http://adminer:8080'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -368,7 +368,7 @@ data "coder_parameter" "app_2_url" {
 data "coder_parameter" "app_2_icon" {
   name         = "app_2_icon"
   display_name = "App #2: Icon"
-  description  = "e.g., /icon/redis.svg or /emojis/1f310.png"
+  description  = "Icon path or emoji code for the app.\n\n _Example: '/icon/adminer.svg'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -408,7 +408,7 @@ data "coder_parameter" "app_3_name" {
 data "coder_parameter" "app_3_slug" {
   name         = "app_3_slug"
   display_name = "App #3: Slug"
-  description  = "URL-safe identifier (lowercase, hyphens, underscores)"
+  description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\n _Example: 'mailpit'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -422,7 +422,7 @@ data "coder_parameter" "app_3_slug" {
 data "coder_parameter" "app_3_url" {
   name         = "app_3_url"
   display_name = "App #3: URL"
-  description  = "Internal service URL"
+  description  = "Internal service URL reachable from the workspace.\n\n _Example: 'http://mailpit:8025'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -436,7 +436,7 @@ data "coder_parameter" "app_3_url" {
 data "coder_parameter" "app_3_icon" {
   name         = "app_3_icon"
   display_name = "App #3: Icon"
-  description  = "e.g., /icon/redis.svg or /emojis/1f310.png"
+  description  = "Icon path or emoji code for the app.\n\n _Example: 'https://mailpit.axllent.org/images/mailpit.svg'._"
   type         = "string"
   mutable      = true
   default      = ""
@@ -496,10 +496,10 @@ locals {
     }
     postgres = {
       containers = [{
-        name   = "postgres"
-        image  = "postgres:15-alpine"
-        ports  = [5432]
-        env    = [
+        name  = "postgres"
+        image = "postgres:15-alpine"
+        ports = [5432]
+        env = [
           # Use a sanitized workspace name for the DB name (fallback handled by local.sanitized_workspace_name)
           "POSTGRES_DB=${local.sanitized_workspace_name}",
           "POSTGRES_USER=embold",
@@ -512,10 +512,10 @@ locals {
     }
     mysql = {
       containers = [{
-        name   = "mysql"
-        image  = "mysql:8.0"
-        ports  = [3306]
-        env    = [
+        name  = "mysql"
+        image = "mysql:8.0"
+        ports = [3306]
+        env = [
           # MySQL expects a database name without special chars; use sanitized workspace name
           "MYSQL_ROOT_PASSWORD=embold",
           "MYSQL_DATABASE=${local.sanitized_workspace_name}",
@@ -529,10 +529,10 @@ locals {
     }
     mongo = {
       containers = [{
-        name   = "mongo"
-        image  = "mongo:7"
-        ports  = [27017]
-        env    = [
+        name  = "mongo"
+        image = "mongo:7"
+        ports = [27017]
+        env = [
           # MongoDB initial DB can be created via the init scripts; set root user/pass to embold
           "MONGO_INITDB_ROOT_USERNAME=embold",
           "MONGO_INITDB_ROOT_PASSWORD=embold"
@@ -685,9 +685,6 @@ locals {
     }"
     if app.original_url != null && app.original_url != ""
   ])
-
-  # Suffix to append to created Docker resource names to keep them unique per workspace
-  name_suffix = data.coder_workspace.me.id
 }
 
 
@@ -695,8 +692,8 @@ locals {
 resource "docker_volume" "dynamic_resource_volume" {
   # Only create volumes if the workspace is running
   for_each = data.coder_workspace.me.start_count > 0 ? toset(local.volume_names_to_create) : []
-  # Use the original volume name as key but generate a Docker volume name that includes a suffix
-  # If the volume came from a preset, suffix with preset-<n>, otherwise custom-<n> could be added.
+  # Use the original volume name as key but generate a Docker volume name that includes a prefix.
+  # If the volume came from a preset, prefix with preset-<n>, otherwise custom-<n>.
   name = "${var.resource_name_base}-${each.key}"
   lifecycle {
     ignore_changes = all
@@ -725,7 +722,7 @@ resource "docker_container" "dynamic_resource_container" {
     : "${var.resource_name_base}-${each.value.name}"
   )
   image        = each.value.image
-  hostname     = each.value.name
+  hostname     = "d_${each.value.name}"
   network_mode = var.docker_network_name
   env          = each.value.env
   #   restart      = "unless-stopped"
