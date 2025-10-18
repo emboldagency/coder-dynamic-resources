@@ -467,6 +467,14 @@ data "coder_parameter" "app_3_share" {
 data "coder_workspace" "me" {}
 
 locals {
+  # Derive a simple sanitized workspace name: replace hyphens and spaces with underscores and lowercase.
+  # This avoids using regexreplace in environments where it's unavailable.
+  sanitized_workspace_name_raw = try(data.coder_workspace.me.name, "")
+  sanitized_workspace_name = (
+    length(trimspace(local.sanitized_workspace_name_raw)) > 0
+    ? lower(replace(replace(local.sanitized_workspace_name_raw, "-", "_"), " ", "_"))
+    : "workspace"
+  )
   # Preset configurations for common services
   preset_configs = {
     redis = {
@@ -492,8 +500,8 @@ locals {
         image  = "postgres:15-alpine"
         ports  = [5432]
         env    = [
-          # Use sanitized workspace name for DB name, fallback to 'workspace'
-          "POSTGRES_DB=${lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) != "" ? lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) : "workspace"}",
+          # Use a sanitized workspace name for the DB name (fallback handled by local.sanitized_workspace_name)
+          "POSTGRES_DB=${local.sanitized_workspace_name}",
           "POSTGRES_USER=embold",
           "POSTGRES_PASSWORD=embold"
         ]
@@ -510,7 +518,7 @@ locals {
         env    = [
           # MySQL expects a database name without special chars; use sanitized workspace name
           "MYSQL_ROOT_PASSWORD=embold",
-          "MYSQL_DATABASE=${lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) != "" ? lower(regex_replace("[^a-zA-Z0-9_]", "_", replace(data.coder_workspace.me.name, "-", "_"))) : "workspace"}",
+          "MYSQL_DATABASE=${local.sanitized_workspace_name}",
           "MYSQL_USER=embold",
           "MYSQL_PASSWORD=embold"
         ]
@@ -725,7 +733,6 @@ resource "docker_volume" "dynamic_resource_volume" {
 resource "docker_container" "dynamic_resource_container" {
   # Only create containers if the workspace is running.
   for_each = data.coder_workspace.me.start_count > 0 ? local.all_containers_map : {}
-  agent_id = var.agent_id
   name = (
     startswith(each.key, "custom-")
     ? "${var.resource_name_base}-custom-${each.value.custom_idx}"
