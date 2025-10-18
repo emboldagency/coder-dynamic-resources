@@ -565,13 +565,6 @@ locals {
         mounts = {}
       }]
       volumes = []
-      apps = [{
-        name  = "Redis CLI"
-        slug  = "redis-cli"
-        url   = "http://redis:6379"
-        icon  = "/icon/redis.svg"
-        share = "owner"
-      }]
     }
     postgres = {
       containers = [{
