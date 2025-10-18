@@ -693,7 +693,8 @@ locals {
 
 # --- Section: Resource Creation ---
 resource "docker_volume" "dynamic_resource_volume" {
-  for_each = toset(local.volume_names_to_create)
+  # Only create volumes if the workspace is running
+  for_each = data.coder_workspace.me.start_count > 0 ? toset(local.volume_names_to_create) : []
   # Use the original volume name as key but generate a Docker volume name that includes a suffix
   # If the volume came from a preset, suffix with preset-<n>, otherwise custom-<n> could be added.
   name = "${var.resource_name_base}-${each.key}"
@@ -791,6 +792,7 @@ resource "docker_container" "dynamic_resource_container" {
 }
 
 resource "coder_script" "dynamic_resources_reverse_proxy" {
+  count              = data.coder_workspace.me.start_count
   agent_id           = var.agent_id
   display_name       = "Dynamic Resources Proxy"
   icon               = "/icon/globe.svg"
@@ -801,7 +803,8 @@ resource "coder_script" "dynamic_resources_reverse_proxy" {
 
 # Create the Coder apps to expose the services
 resource "coder_app" "dynamic_app" {
-  for_each = { for app in local.additional_apps : app.slug => app if app.name != null && app.name != "" && app.slug != null && app.slug != "" }
+  # Only create apps if the workspace is running
+  for_each = data.coder_workspace.me.start_count > 0 ? { for app in local.additional_apps : app.slug => app if app.name != null && app.name != "" && app.slug != null && app.slug != "" } : {}
 
   agent_id     = var.agent_id
   slug         = each.value.slug
