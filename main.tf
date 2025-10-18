@@ -119,7 +119,7 @@ data "coder_parameter" "container_1_env_vars" {
   display_name = "Container #1: Environment Variables"
   description  = "One per line, e.g., 'POSTGRES_USER=coder'"
   type         = "string"
-  icon         = "/emojis/2699.png"
+  icon         = "/emojis/2733.png"
   mutable      = true
   default      = ""
   order        = 205
@@ -186,7 +186,7 @@ data "coder_parameter" "container_2_env_vars" {
   display_name = "Container #2: Environment Variables"
   description  = "One per line, e.g., 'POSTGRES_USER=coder'"
   type         = "string"
-  icon         = "/emojis/2699.png"
+  icon         = "/emojis/2733.png"
   mutable      = true
   default      = ""
   order        = 215
@@ -253,7 +253,7 @@ data "coder_parameter" "container_3_env_vars" {
   display_name = "Container #3: Environment Variables"
   description  = "One per line, e.g., 'POSTGRES_USER=coder'"
   type         = "string"
-  icon         = "/emojis/2699.png"
+  icon         = "/emojis/2733.png"
   mutable      = true
   default      = ""
   order        = 225
@@ -533,8 +533,8 @@ locals {
   # Construct containers from preset (if selected) and custom parameters
   preset_containers = local.preset_data != null ? local.preset_data.containers : []
 
-  # Build container definitions from fixed parameter slots, then filter empties
-  custom_containers_raw = [
+  # Build custom containers base list (no idx yet)
+  custom_containers_base = [
     {
       name  = try(data.coder_parameter.container_1_name.value, "")
       image = try(data.coder_parameter.container_1_image.value, "")
@@ -594,7 +594,16 @@ locals {
     }
   ]
 
-  custom_containers = [for c in local.custom_containers_raw : c if c.name != "" && c.image != ""]
+  custom_containers = [
+    for i, c in tolist(local.custom_containers_base) : merge(c, { custom_idx = i + 1 })
+    if c.name != "" && c.image != ""
+  ]
+
+  # Build a single map for for_each: preset containers by name, custom containers by custom-N
+  all_containers_map = merge(
+    { for c in local.preset_containers : c.name => c },
+    { for c in local.custom_containers : "custom-${c.custom_idx}" => c }
+  )
 
   # Combine preset and custom containers
   additional_containers = concat(local.preset_containers, local.custom_containers)
@@ -665,6 +674,9 @@ locals {
     }"
     if app.original_url != null && app.original_url != ""
   ])
+
+  # Suffix to append to created Docker resource names to keep them unique per workspace
+  name_suffix = data.coder_workspace.me.id
 }
 
 
@@ -679,9 +691,13 @@ resource "docker_volume" "dynamic_resource_volume" {
 
 resource "docker_container" "dynamic_resource_container" {
   # Only create containers if the workspace is running.
-  for_each = data.coder_workspace.me.start_count > 0 ? { for c in local.additional_containers : c.name => c if c.name != null && c.name != "" } : {}
+  for_each = data.coder_workspace.me.start_count > 0 ? local.all_containers_map : {}
 
-  name         = "${var.resource_name_base}-${each.value.name}"
+  name = (
+    startswith(each.key, "custom-")
+    ? "${var.resource_name_base}-custom-${each.value.custom_idx}"
+    : "${var.resource_name_base}-${each.value.name}"
+  )
   image        = each.value.image
   hostname     = each.value.name
   network_mode = var.docker_network_name
