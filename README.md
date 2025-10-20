@@ -81,6 +81,39 @@ EOT
 - **Volume Management**: List of persistent volumes to create
 - **App Configuration**: Coder apps to expose container services
 
+## Parameter Ordering and Offsets
+
+This module creates **34 Coder parameters**. To control the order in the Coder UI, set the `order` variable when including this module:
+
+```hcl
+module "dynamic_services" {
+  source = "..."
+  order  = 0 # or offset from previous modules
+  # ...other variables...
+}
+```
+
+Each parameter's order is calculated as `var.order + offset`, where `offset` is the parameter's index in this module (starting from 0).
+
+**If you include multiple modules:**
+- Set the `order` variable in each module to offset by the total number of parameters in previous modules.
+- Example: If module A creates 10 parameters, set `order = 10` in module B so its first parameter appears after module A's last parameter.
+
+**Parameter count in this module:**
+- Quick Setup Preset: 1
+- Additional Volumes: 1
+- Container Count: 1
+- Container 1: 5
+- Container 2: 5
+- Container 3: 5
+- Coder App Count: 1
+- Coder App 1: 5
+- Coder App 2: 5
+- Coder App 3: 5
+- **Total:** 34
+
+Adjust the offset as needed for your template's UI order.
+
 ## Security Features
 
 - **Resource Limits**: Configurable memory limits prevent container resource exhaustion
