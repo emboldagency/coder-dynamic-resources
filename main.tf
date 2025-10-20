@@ -12,6 +12,12 @@ terraform {
   }
 }
 
+variable "order" {
+  description = "Order for Coder parameters in this module. This module can create a maximum of 34 parameters, so choose an order that leaves room for your other parameters."
+  type        = number
+  default     = 0
+}
+
 # --- Section: Quick Setup Presets ---
 data "coder_parameter" "quick_setup_preset" {
   name         = "quick_setup_preset"
@@ -21,7 +27,7 @@ data "coder_parameter" "quick_setup_preset" {
   type         = "string"
   mutable      = true
   default      = "none"
-  order        = 99
+  order        = var.order + 0
 
   option {
     name  = "None (Custom Setup)"
@@ -55,18 +61,18 @@ data "coder_parameter" "additional_volumes" {
   form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
-  order        = 110
+  order        = var.order + 1
 }
 
 data "coder_parameter" "custom_container_count" {
   name         = "custom_container_count"
   display_name = "Additional Container Count"
-  description  = "Number of additional Docker containers to create (0-3). Set to 0 to skip adding containers. Place this control near the end of the form so additional container fields appear after it."
+  description  = "Number of additional Docker containers to create (0-3). Set to 0 to skip adding containers."
   type         = "number"
   form_type    = "slider"
   mutable      = true
   default      = 0
-  order        = 990
+  order        = var.order + 2
   validation {
     min = 0
     max = 3
@@ -97,7 +103,7 @@ data "coder_parameter" "container_1_name" {
   icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
   default      = ""
-  order        = 201
+  order        = var.order + 3
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
@@ -113,7 +119,7 @@ data "coder_parameter" "container_1_image" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 202
+  order        = var.order + 4
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
@@ -130,7 +136,7 @@ data "coder_parameter" "container_1_ports" {
   form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
-  order        = 203
+  order        = var.order + 5
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
@@ -143,7 +149,7 @@ data "coder_parameter" "container_1_volume_mounts" {
   icon         = "/icon/folder.svg"
   mutable      = true
   default      = jsonencode([])
-  order        = 204
+  order        = var.order + 6
 }
 
 data "coder_parameter" "container_1_env_vars" {
@@ -155,7 +161,7 @@ data "coder_parameter" "container_1_env_vars" {
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
-  order        = 205
+  order        = var.order + 7
 }
 
 data "coder_parameter" "container_2_name" {
@@ -167,7 +173,7 @@ data "coder_parameter" "container_2_name" {
   icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
   default      = ""
-  order        = 211
+  order        = var.order + 8
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
@@ -183,7 +189,7 @@ data "coder_parameter" "container_2_image" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 212
+  order        = var.order + 9
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
@@ -200,7 +206,7 @@ data "coder_parameter" "container_2_ports" {
   form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
-  order        = 213
+  order        = var.order + 10
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
@@ -213,7 +219,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   icon         = "/icon/folder.svg"
   mutable      = true
   default      = jsonencode([])
-  order        = 214
+  order        = var.order + 11
 }
 
 data "coder_parameter" "container_2_env_vars" {
@@ -225,7 +231,7 @@ data "coder_parameter" "container_2_env_vars" {
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
-  order        = 215
+  order        = var.order + 12
 }
 
 data "coder_parameter" "container_3_name" {
@@ -237,7 +243,7 @@ data "coder_parameter" "container_3_name" {
   icon         = "/emojis/1f4db.png" # Name badge
   mutable      = true
   default      = ""
-  order        = 221
+  order        = var.order + 13
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
@@ -253,7 +259,7 @@ data "coder_parameter" "container_3_image" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 222
+  order        = var.order + 14
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
@@ -270,7 +276,7 @@ data "coder_parameter" "container_3_ports" {
   form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
-  order        = 223
+  order        = var.order + 15
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
@@ -283,7 +289,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   icon         = "/icon/folder.svg"
   mutable      = true
   default      = jsonencode([])
-  order        = 224
+  order        = var.order + 16
 }
 
 data "coder_parameter" "container_3_env_vars" {
@@ -296,18 +302,18 @@ data "coder_parameter" "container_3_env_vars" {
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
-  order        = 225
+  order        = var.order + 17
 }
 
 data "coder_parameter" "custom_coder_app_count" {
   name         = "custom_coder_app_count"
   display_name = "Additional Coder App Count"
-  description  = "Number of additional Coder Apps to create (0-3). Set to 0 to skip adding apps. Place this control near the end of the form so additional app fields appear after it."
+  description  = "Number of additional Coder Apps to create (0-3). Set to 0 to skip adding apps."
   type         = "number"
   form_type    = "slider"
   mutable      = true
   default      = 0
-  order        = 991
+  order        = var.order + 18
   validation {
     min = 0
     max = 3
@@ -322,7 +328,7 @@ data "coder_parameter" "app_1_name" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 301
+  order        = var.order + 19
 }
 
 data "coder_parameter" "app_1_slug" {
@@ -333,7 +339,7 @@ data "coder_parameter" "app_1_slug" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 302
+  order        = var.order + 20
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -348,7 +354,7 @@ data "coder_parameter" "app_1_url" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 303
+  order        = var.order + 21
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -363,7 +369,7 @@ data "coder_parameter" "app_1_icon" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 304
+  order        = var.order + 22
 }
 
 data "coder_parameter" "app_1_share" {
@@ -373,7 +379,7 @@ data "coder_parameter" "app_1_share" {
   type         = "string"
   default      = "owner"
   mutable      = true
-  order        = 305
+  order        = var.order + 23
   option {
     name  = "Owner"
     value = "owner"
@@ -395,7 +401,7 @@ data "coder_parameter" "app_2_name" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 311
+  order        = var.order + 24
 }
 
 data "coder_parameter" "app_2_slug" {
@@ -406,7 +412,7 @@ data "coder_parameter" "app_2_slug" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 312
+  order        = var.order + 25
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -421,7 +427,7 @@ data "coder_parameter" "app_2_url" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 313
+  order        = var.order + 26
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -436,7 +442,7 @@ data "coder_parameter" "app_2_icon" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 314
+  order        = var.order + 27
 }
 
 data "coder_parameter" "app_2_share" {
@@ -446,7 +452,7 @@ data "coder_parameter" "app_2_share" {
   type         = "string"
   default      = "owner"
   mutable      = true
-  order        = 315
+  order        = var.order + 28
   option {
     name  = "Owner"
     value = "owner"
@@ -468,7 +474,7 @@ data "coder_parameter" "app_3_name" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 321
+  order        = var.order + 29
 }
 
 data "coder_parameter" "app_3_slug" {
@@ -479,7 +485,7 @@ data "coder_parameter" "app_3_slug" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 322
+  order        = var.order + 30
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -494,7 +500,7 @@ data "coder_parameter" "app_3_url" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 323
+  order        = var.order + 31
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -509,7 +515,7 @@ data "coder_parameter" "app_3_icon" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = 324
+  order        = var.order + 32
 }
 
 data "coder_parameter" "app_3_share" {
@@ -519,7 +525,7 @@ data "coder_parameter" "app_3_share" {
   type         = "string"
   default      = "owner"
   mutable      = true
-  order        = 325
+  order        = var.order + 33
   option {
     name  = "Owner"
     value = "owner"
@@ -799,16 +805,10 @@ resource "docker_container" "dynamic_resource_container" {
     : "${var.resource_name_base}-${each.value.name}"
   )
   image        = each.value.image
-  hostname     = each.value.name
+  hostname     = "d_${each.value.name}"
   network_mode = var.docker_network_name
   env          = each.value.env
   #   restart      = "unless-stopped"
-
-  # Add network alias so container is reachable by its simple name
-  networks_advanced {
-    name    = var.docker_network_name
-    aliases = [each.value.name]
-  }
 
   # Resource limits to prevent containers from consuming excessive resources
   memory      = var.container_memory_limit
@@ -898,18 +898,17 @@ resource "coder_app" "dynamic_app" {
 resource "coder_metadata" "dynamic_container_info" {
   for_each    = data.coder_workspace.me.start_count > 0 ? local.all_containers_map : {}
   resource_id = docker_container.dynamic_resource_container[each.key].id
-
   item {
     key   = "Hostname"
     value = each.value.name
   }
-  item {
-    key   = "Image"
-    value = each.value.image
-  }
-  item {
-    key   = "Type"
-    value = startswith(each.key, "preset-") ? "Preset" : "Custom"
-  }
+  # item {
+  #   key   = "Image"
+  #   value = each.value.image
+  # }
+  # item {
+  #   key   = "Type"
+  #   value = startswith(each.key, "preset-") ? "Preset" : "Custom"
+  # }
 }
 
