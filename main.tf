@@ -60,12 +60,13 @@ data "coder_parameter" "additional_volumes" {
 
 data "coder_parameter" "custom_container_count" {
   name         = "custom_container_count"
-  display_name = "Custom Container Count"
-  description  = "Number of additional Docker containers to create (1-3). Leave as 0 to skip adding containers."
+  display_name = "Additional Container Count"
+  description  = "Number of additional Docker containers to create (0-3). Set to 0 to skip adding containers. Place this control near the end of the form so additional container fields appear after it."
   type         = "number"
   form_type    = "slider"
   mutable      = true
   default      = 0
+  order        = 990
   validation {
     min = 0
     max = 3
@@ -300,12 +301,13 @@ data "coder_parameter" "container_3_env_vars" {
 
 data "coder_parameter" "custom_coder_app_count" {
   name         = "custom_coder_app_count"
-  display_name = "Custom Coder App Count"
-  description  = "Number of additional Coder Apps to create (1-3). Leave as 0 to skip adding coder apps."
+  display_name = "Additional Coder App Count"
+  description  = "Number of additional Coder Apps to create (0-3). Set to 0 to skip adding apps. Place this control near the end of the form so additional app fields appear after it."
   type         = "number"
   form_type    = "slider"
   mutable      = true
   default      = 0
+  order        = 991
   validation {
     min = 0
     max = 3
