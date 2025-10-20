@@ -799,10 +799,16 @@ resource "docker_container" "dynamic_resource_container" {
     : "${var.resource_name_base}-${each.value.name}"
   )
   image        = each.value.image
-  hostname     = "d_${each.value.name}"
+  hostname     = each.value.name
   network_mode = var.docker_network_name
   env          = each.value.env
   #   restart      = "unless-stopped"
+
+  # Add network alias so container is reachable by its simple name
+  networks_advanced {
+    name    = var.docker_network_name
+    aliases = [each.value.name]
+  }
 
   # Resource limits to prevent containers from consuming excessive resources
   memory      = var.container_memory_limit
@@ -886,5 +892,24 @@ resource "coder_app" "dynamic_app" {
   url          = each.value.proxy_url
   icon         = each.value.icon
   share        = each.value.share
+}
+
+# Display metadata for each dynamic container showing how to reach them
+resource "coder_metadata" "dynamic_container_info" {
+  for_each    = data.coder_workspace.me.start_count > 0 ? local.all_containers_map : {}
+  resource_id = docker_container.dynamic_resource_container[each.key].id
+
+  item {
+    key   = "Hostname"
+    value = each.value.name
+  }
+  item {
+    key   = "Image"
+    value = each.value.image
+  }
+  item {
+    key   = "Type"
+    value = startswith(each.key, "preset-") ? "Preset" : "Custom"
+  }
 }
 
