@@ -396,7 +396,7 @@ data "coder_parameter" "app_1_icon" {
   display_name = "Coder App #1: Icon"
   description  = local.desc.app_icon
   type         = "string"
-  icon         = local.icon.image
+  icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
   order        = var.order + 22
@@ -486,7 +486,7 @@ data "coder_parameter" "app_2_icon" {
       Example: `/icon/adminer.svg`
   DESC
   type         = "string"
-  icon         = local.icon.image
+  icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
   order        = var.order + 27
@@ -576,7 +576,7 @@ data "coder_parameter" "app_3_icon" {
       Example: `https://mailpit.axllent.org/images/mailpit.svg`
   DESC
   type         = "string"
-  icon         = local.icon.image
+  icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
   order        = var.order + 32
@@ -732,7 +732,6 @@ locals {
     electrical_plug = "/emojis/1f50c.png"
     folder          = "/emojis/1f4c1.png"
     globe           = "/emojis/1f310.png"
-    image           = "/emojis/1f517.png"
     lightning_bolt  = "/emojis/26a1.png"
     locked_with_pen = "/emojis/1f50f.png"
     name_badge      = "/emojis/1f4db.png"
