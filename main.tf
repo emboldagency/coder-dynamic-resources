@@ -176,6 +176,18 @@ data "coder_parameter" "container_1_env_vars" {
   })
 }
 
+data "coder_parameter" "container_1_create_coder_app" {
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  name         = "container_1_create_coder_app"
+  display_name = "Container #1: Create Coder App?"
+  description  = "Automatically create a Coder app button to access this container's web interface"
+  type         = "bool"
+  icon         = local.icon.globe
+  mutable      = true
+  default      = "false"
+  order        = var.order + 8
+}
+
 data "coder_parameter" "container_2_name" {
   count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
   name         = "container_2_name"
@@ -185,7 +197,7 @@ data "coder_parameter" "container_2_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 8
+  order        = var.order + 9
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
@@ -201,7 +213,7 @@ data "coder_parameter" "container_2_image" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = var.order + 9
+  order        = var.order + 10
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
@@ -218,7 +230,7 @@ data "coder_parameter" "container_2_ports" {
   form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 10
+  order        = var.order + 11
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
@@ -231,7 +243,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 11
+  order        = var.order + 12
 }
 
 data "coder_parameter" "container_2_env_vars" {
@@ -244,13 +256,25 @@ data "coder_parameter" "container_2_env_vars" {
   icon         = local.icon.asterisk
   mutable      = true
   default      = ""
-  order        = var.order + 12
+  order        = var.order + 13
   styling = jsonencode({
     placeholder = <<-PL
     NODE_ENV=production
     DEBUG=false
     PL
   })
+}
+
+data "coder_parameter" "container_2_create_coder_app" {
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  name         = "container_2_create_coder_app"
+  display_name = "Container #2: Create Coder App?"
+  description  = "Automatically create a Coder app button to access this container's web interface"
+  type         = "bool"
+  icon         = local.icon.globe
+  mutable      = true
+  default      = "false"
+  order        = var.order + 14
 }
 
 data "coder_parameter" "container_3_name" {
@@ -262,7 +286,7 @@ data "coder_parameter" "container_3_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 13
+  order        = var.order + 15
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
@@ -278,7 +302,7 @@ data "coder_parameter" "container_3_image" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = var.order + 14
+  order        = var.order + 16
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
@@ -295,7 +319,7 @@ data "coder_parameter" "container_3_ports" {
   form_type    = "tag-select"
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 15
+  order        = var.order + 17
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
@@ -308,7 +332,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 16
+  order        = var.order + 18
 }
 
 data "coder_parameter" "container_3_env_vars" {
@@ -321,13 +345,25 @@ data "coder_parameter" "container_3_env_vars" {
   icon         = local.icon.asterisk
   mutable      = true
   default      = ""
-  order        = var.order + 17
+  order        = var.order + 19
   styling = jsonencode({
     placeholder = <<-PL
     NODE_ENV=production
     DEBUG=false
     PL
   })
+}
+
+data "coder_parameter" "container_3_create_coder_app" {
+  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  name         = "container_3_create_coder_app"
+  display_name = "Container #3: Create Coder App?"
+  description  = "Automatically create a Coder app button to access this container's web interface"
+  type         = "bool"
+  icon         = local.icon.globe
+  mutable      = true
+  default      = "false"
+  order        = var.order + 20
 }
 
 data "coder_parameter" "custom_coder_app_count" {
@@ -339,7 +375,7 @@ data "coder_parameter" "custom_coder_app_count" {
   form_type    = "slider"
   mutable      = true
   default      = 0
-  order        = var.order + 18
+  order        = var.order + 21
   validation {
     min = 0
     max = 3
@@ -355,7 +391,7 @@ data "coder_parameter" "app_1_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 19
+  order        = var.order + 22
 }
 
 data "coder_parameter" "app_1_slug" {
@@ -367,7 +403,7 @@ data "coder_parameter" "app_1_slug" {
   icon         = local.icon.snail
   mutable      = true
   default      = ""
-  order        = var.order + 20
+  order        = var.order + 23
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -383,7 +419,7 @@ data "coder_parameter" "app_1_url" {
   icon         = local.icon.paperclip
   mutable      = true
   default      = ""
-  order        = var.order + 21
+  order        = var.order + 24
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -399,7 +435,7 @@ data "coder_parameter" "app_1_icon" {
   icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
-  order        = var.order + 22
+  order        = var.order + 25
 }
 
 data "coder_parameter" "app_1_share" {
@@ -410,7 +446,7 @@ data "coder_parameter" "app_1_share" {
   icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
-  order        = var.order + 23
+  order        = var.order + 26
   option {
     name  = "Owner"
     value = "owner"
@@ -433,7 +469,7 @@ data "coder_parameter" "app_2_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 24
+  order        = var.order + 27
 }
 
 data "coder_parameter" "app_2_slug" {
@@ -449,7 +485,7 @@ data "coder_parameter" "app_2_slug" {
   icon         = local.icon.snail
   mutable      = true
   default      = ""
-  order        = var.order + 25
+  order        = var.order + 28
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -469,7 +505,7 @@ data "coder_parameter" "app_2_url" {
   icon         = local.icon.paperclip
   mutable      = true
   default      = ""
-  order        = var.order + 26
+  order        = var.order + 29
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -489,7 +525,7 @@ data "coder_parameter" "app_2_icon" {
   icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
-  order        = var.order + 27
+  order        = var.order + 30
 }
 
 data "coder_parameter" "app_2_share" {
@@ -500,7 +536,7 @@ data "coder_parameter" "app_2_share" {
   icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
-  order        = var.order + 28
+  order        = var.order + 31
   option {
     name  = "Owner"
     value = "owner"
@@ -523,7 +559,7 @@ data "coder_parameter" "app_3_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 29
+  order        = var.order + 32
 }
 
 data "coder_parameter" "app_3_slug" {
@@ -539,7 +575,7 @@ data "coder_parameter" "app_3_slug" {
   icon         = local.icon.snail
   mutable      = true
   default      = ""
-  order        = var.order + 30
+  order        = var.order + 33
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -559,7 +595,7 @@ data "coder_parameter" "app_3_url" {
   icon         = local.icon.paperclip
   mutable      = true
   default      = ""
-  order        = var.order + 31
+  order        = var.order + 34
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -579,7 +615,7 @@ data "coder_parameter" "app_3_icon" {
   icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
-  order        = var.order + 32
+  order        = var.order + 35
 }
 
 data "coder_parameter" "app_3_share" {
@@ -590,7 +626,7 @@ data "coder_parameter" "app_3_share" {
   icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
-  order        = var.order + 33
+  order        = var.order + 36
   option {
     name  = "Owner"
     value = "owner"
@@ -870,8 +906,41 @@ locals {
     } if app.name != "" && app.slug != ""
   ]
 
-  # Combine preset and custom apps
-  additional_apps = concat(local.preset_apps, local.custom_apps)
+  # Auto-generate apps from containers with create_app enabled
+  container_generated_apps_raw = [
+    {
+      name         = try(data.coder_parameter.container_1_name[0].value, "")
+      create_app   = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
+      first_port   = try(jsondecode(data.coder_parameter.container_1_ports[0].value)[0], null)
+    },
+    {
+      name         = try(data.coder_parameter.container_2_name[0].value, "")
+      create_app   = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
+      first_port   = try(jsondecode(data.coder_parameter.container_2_ports[0].value)[0], null)
+    },
+    {
+      name         = try(data.coder_parameter.container_3_name[0].value, "")
+      create_app   = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
+      first_port   = try(jsondecode(data.coder_parameter.container_3_ports[0].value)[0], null)
+    }
+  ]
+
+  container_generated_apps = [
+    for container in local.container_generated_apps_raw : {
+      name         = container.name
+      slug         = lower(replace(container.name, " ", "-"))
+      icon         = local.icon.globe
+      share        = "owner"
+      original_url = "http://localhost:${container.first_port}"
+      remote_port  = tonumber(container.first_port)
+      local_port   = 19000 + tonumber(container.first_port)
+      proxy_url    = "http://localhost:${19000 + tonumber(container.first_port)}"
+    }
+    if container.name != "" && container.create_app == "true" && container.first_port != null
+  ]
+
+  # Combine preset, container-generated, and manually-defined custom apps
+  additional_apps = concat(local.preset_apps, local.container_generated_apps, local.custom_apps)
 
   # Generate the PROXY_LINE string for the reverse proxy script.
   proxy_mappings_str = join(" ", [
