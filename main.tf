@@ -58,7 +58,7 @@ data "coder_parameter" "additional_volumes" {
   description  = <<-DESC
     List of all persistent volume names to create for this workspace. You can then mount them into containers below.
 
-      Example: `my-cache,shared-uploads`
+    Example: `my-cache,shared-uploads`
   DESC
   icon         = local.icon.folder
   type         = "list(string)"
@@ -135,14 +135,33 @@ data "coder_parameter" "container_1_image" {
 data "coder_parameter" "container_1_ports" {
   count        = 1
   name         = "container_1_ports"
-  display_name = "Container #1: Internal Ports"
-  description  = local.desc.container_ports
+  display_name = "Container #1: Container Port"
+  description  = local.desc.container_port
   icon         = local.icon.electrical_plug
-  type         = "list(string)"
-  form_type    = "tag-select"
+  type         = "string"
   mutable      = true
-  default      = jsonencode([])
+  default      = ""
   order        = var.order + 5
+  validation {
+    regex = "^$|^([1-9][0-9]{0,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"
+    error = "Port must be a valid number between 1 and 65535."
+  }
+}
+
+data "coder_parameter" "container_1_local_port" {
+  count        = 1
+  name         = "container_1_local_port"
+  display_name = "Container #1: Local Proxy Port"
+  description  = local.desc.local_port
+  icon         = local.icon.electrical_plug
+  type         = "string"
+  mutable      = true
+  default      = ""
+  order        = var.order + 6
+  validation {
+    regex = "^$|^(19[0-9]{3}|20000)$"
+    error = "Local port must be between 19000 and 20000."
+  }
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
@@ -155,7 +174,7 @@ data "coder_parameter" "container_1_volume_mounts" {
   icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 6
+  order        = var.order + 7
 }
 
 data "coder_parameter" "container_1_env_vars" {
@@ -168,7 +187,7 @@ data "coder_parameter" "container_1_env_vars" {
   icon         = local.icon.asterisk
   mutable      = true
   default      = ""
-  order        = var.order + 7
+  order        = var.order + 8
   styling = jsonencode({
     placeholder = <<-PL
     NODE_ENV=production
@@ -186,7 +205,7 @@ data "coder_parameter" "container_1_create_coder_app" {
   icon         = local.icon.globe
   mutable      = true
   default      = "false"
-  order        = var.order + 8
+  order        = var.order + 9
 }
 
 data "coder_parameter" "container_2_name" {
@@ -224,14 +243,33 @@ data "coder_parameter" "container_2_image" {
 data "coder_parameter" "container_2_ports" {
   count        = 1
   name         = "container_2_ports"
-  display_name = "Container #2: Internal Ports"
-  description  = local.desc.container_ports
+  display_name = "Container #2: Container Port"
+  description  = local.desc.container_port
   icon         = local.icon.electrical_plug
-  type         = "list(string)"
-  form_type    = "tag-select"
+  type         = "string"
   mutable      = true
-  default      = jsonencode([])
+  default      = ""
   order        = var.order + 11
+  validation {
+    regex = "^$|^([1-9][0-9]{0,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"
+    error = "Port must be a valid number between 1 and 65535."
+  }
+}
+
+data "coder_parameter" "container_2_local_port" {
+  count        = 1
+  name         = "container_2_local_port"
+  display_name = "Container #2: Local Proxy Port"
+  description  = local.desc.local_port
+  icon         = local.icon.electrical_plug
+  type         = "string"
+  mutable      = true
+  default      = ""
+  order        = var.order + 12
+  validation {
+    regex = "^$|^(19[0-9]{3}|20000)$"
+    error = "Local port must be between 19000 and 20000."
+  }
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
@@ -244,7 +282,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 12
+  order        = var.order + 13
 }
 
 data "coder_parameter" "container_2_env_vars" {
@@ -257,7 +295,7 @@ data "coder_parameter" "container_2_env_vars" {
   icon         = local.icon.asterisk
   mutable      = true
   default      = ""
-  order        = var.order + 13
+  order        = var.order + 14
   styling = jsonencode({
     placeholder = <<-PL
     NODE_ENV=production
@@ -275,7 +313,7 @@ data "coder_parameter" "container_2_create_coder_app" {
   icon         = local.icon.globe
   mutable      = true
   default      = "false"
-  order        = var.order + 14
+  order        = var.order + 15
 }
 
 data "coder_parameter" "container_3_name" {
@@ -287,7 +325,7 @@ data "coder_parameter" "container_3_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 15
+  order        = var.order + 16
   validation {
     regex = "^$|^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$"
     error = "Container name must start with alphanumeric character, contain only letters, numbers, hyphens, and underscores, and be 1-63 characters long."
@@ -303,7 +341,7 @@ data "coder_parameter" "container_3_image" {
   type         = "string"
   mutable      = true
   default      = ""
-  order        = var.order + 16
+  order        = var.order + 17
   validation {
     regex = "^$|^[a-z0-9._/-]+:[a-zA-Z0-9._-]+$|^[a-z0-9._/-]+$"
     error = "Image must be a valid Docker image name (optionally with tag)."
@@ -313,14 +351,33 @@ data "coder_parameter" "container_3_image" {
 data "coder_parameter" "container_3_ports" {
   count        = 1
   name         = "container_3_ports"
-  display_name = "Container #3: Internal Ports"
-  description  = local.desc.container_ports
+  display_name = "Container #3: Container Port"
+  description  = local.desc.container_port
   icon         = local.icon.electrical_plug
-  type         = "list(string)"
-  form_type    = "tag-select"
+  type         = "string"
   mutable      = true
-  default      = jsonencode([])
-  order        = var.order + 17
+  default      = ""
+  order        = var.order + 18
+  validation {
+    regex = "^$|^([1-9][0-9]{0,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"
+    error = "Port must be a valid number between 1 and 65535."
+  }
+}
+
+data "coder_parameter" "container_3_local_port" {
+  count        = 1
+  name         = "container_3_local_port"
+  display_name = "Container #3: Local Proxy Port"
+  description  = local.desc.local_port
+  icon         = local.icon.electrical_plug
+  type         = "string"
+  mutable      = true
+  default      = ""
+  order        = var.order + 19
+  validation {
+    regex = "^$|^(19[0-9]{3}|20000)$"
+    error = "Local port must be between 19000 and 20000."
+  }
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
@@ -333,7 +390,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
-  order        = var.order + 18
+  order        = var.order + 20
 }
 
 data "coder_parameter" "container_3_env_vars" {
@@ -346,7 +403,7 @@ data "coder_parameter" "container_3_env_vars" {
   icon         = local.icon.asterisk
   mutable      = true
   default      = ""
-  order        = var.order + 19
+  order        = var.order + 21
   styling = jsonencode({
     placeholder = <<-PL
     NODE_ENV=production
@@ -364,7 +421,7 @@ data "coder_parameter" "container_3_create_coder_app" {
   icon         = local.icon.globe
   mutable      = true
   default      = "false"
-  order        = var.order + 20
+  order        = var.order + 22
 }
 
 data "coder_parameter" "custom_coder_app_count" {
@@ -376,7 +433,7 @@ data "coder_parameter" "custom_coder_app_count" {
   form_type    = "slider"
   mutable      = true
   default      = 0
-  order        = var.order + 21
+  order        = var.order + 23
   validation {
     min = 0
     max = 3
@@ -392,7 +449,7 @@ data "coder_parameter" "app_1_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 22
+  order        = var.order + 24
 }
 
 data "coder_parameter" "app_1_slug" {
@@ -404,7 +461,7 @@ data "coder_parameter" "app_1_slug" {
   icon         = local.icon.snail
   mutable      = true
   default      = ""
-  order        = var.order + 23
+  order        = var.order + 25
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -420,7 +477,7 @@ data "coder_parameter" "app_1_url" {
   icon         = local.icon.paperclip
   mutable      = true
   default      = ""
-  order        = var.order + 24
+  order        = var.order + 26
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -436,7 +493,7 @@ data "coder_parameter" "app_1_icon" {
   icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
-  order        = var.order + 25
+  order        = var.order + 27
 }
 
 data "coder_parameter" "app_1_share" {
@@ -447,7 +504,7 @@ data "coder_parameter" "app_1_share" {
   icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
-  order        = var.order + 26
+  order        = var.order + 28
   option {
     name  = "Owner"
     value = "owner"
@@ -470,7 +527,7 @@ data "coder_parameter" "app_2_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 27
+  order        = var.order + 29
 }
 
 data "coder_parameter" "app_2_slug" {
@@ -480,13 +537,13 @@ data "coder_parameter" "app_2_slug" {
   description  = <<-DESC
     URL-safe identifier (lowercase, hyphens, underscores).
 
-      Example: `adminer`
+    Example: `adminer`
   DESC
   type         = "string"
   icon         = local.icon.snail
   mutable      = true
   default      = ""
-  order        = var.order + 28
+  order        = var.order + 30
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -500,13 +557,13 @@ data "coder_parameter" "app_2_url" {
   description  = <<-DESC
     Internal service URL reachable from the workspace.
 
-      Example: `http://adminer:8080`
+    Example: `http://adminer:8080`
   DESC
   type         = "string"
   icon         = local.icon.paperclip
   mutable      = true
   default      = ""
-  order        = var.order + 29
+  order        = var.order + 31
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -520,13 +577,13 @@ data "coder_parameter" "app_2_icon" {
   description  = <<-DESC
     Icon path or emoji code for the app.
 
-      Example: `/icon/adminer.svg`
+    Example: `/icon/adminer.svg`
   DESC
   type         = "string"
   icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
-  order        = var.order + 30
+  order        = var.order + 32
 }
 
 data "coder_parameter" "app_2_share" {
@@ -537,7 +594,7 @@ data "coder_parameter" "app_2_share" {
   icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
-  order        = var.order + 31
+  order        = var.order + 33
   option {
     name  = "Owner"
     value = "owner"
@@ -560,7 +617,7 @@ data "coder_parameter" "app_3_name" {
   icon         = local.icon.name_badge
   mutable      = true
   default      = ""
-  order        = var.order + 32
+  order        = var.order + 34
 }
 
 data "coder_parameter" "app_3_slug" {
@@ -570,13 +627,13 @@ data "coder_parameter" "app_3_slug" {
   description  = <<-DESC
     URL-safe identifier (lowercase, hyphens, underscores).
 
-      Example: `mailpit`
+    Example: `mailpit`
   DESC
   type         = "string"
   icon         = local.icon.snail
   mutable      = true
   default      = ""
-  order        = var.order + 33
+  order        = var.order + 35
   validation {
     regex = "^$|^[a-z0-9][a-z0-9_-]{0,31}$"
     error = "Slug must be lowercase, start with alphanumeric, and contain only letters, numbers, hyphens, underscores (max 32 chars)."
@@ -590,13 +647,13 @@ data "coder_parameter" "app_3_url" {
   description  = <<-DESC
     Internal service URL reachable from the workspace.
 
-      Example: `http://mailpit:8025`
+    Example: `http://mailpit:8025`
   DESC
   type         = "string"
   icon         = local.icon.paperclip
   mutable      = true
   default      = ""
-  order        = var.order + 34
+  order        = var.order + 36
   validation {
     regex = "^$|^https?://[a-zA-Z0-9.-]+(:([1-9][0-9]{0,4}))?(/.*)?$"
     error = "URL must be a valid HTTP/HTTPS URL with optional port and path."
@@ -610,13 +667,13 @@ data "coder_parameter" "app_3_icon" {
   description  = <<-DESC
     Icon path or emoji code for the app.
 
-      Example: `https://mailpit.axllent.org/images/mailpit.svg`
+    Example: `https://mailpit.axllent.org/images/mailpit.svg`
   DESC
   type         = "string"
   icon         = "/icon/image.svg"
   mutable      = true
   default      = ""
-  order        = var.order + 35
+  order        = var.order + 37
 }
 
 data "coder_parameter" "app_3_share" {
@@ -627,7 +684,7 @@ data "coder_parameter" "app_3_share" {
   icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
-  order        = var.order + 36
+  order        = var.order + 38
   option {
     name  = "Owner"
     value = "owner"
@@ -665,10 +722,15 @@ locals {
 
       Example: `postgres:15-alpine`
     DESC
-    container_ports = <<-DESC
-      Select internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host). Use the tag selector to add one or more ports.
+    container_port = <<-DESC
+      The actual port the container listens on (1-65535). This is the container's internal port that will be proxied.
 
-      Example: `8080`
+      Example: `80`, `8080`, `3306`
+    DESC
+    local_port = <<-DESC
+      The local proxy port (19000-20000) to use for accessing this container. This must be unique across all containers and apps. The Coder app will proxy this local port to the container's port.
+
+      Example: `19080`, `19081`, `19306`
     DESC
     volume_mounts   = <<-DESC
       Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.
@@ -912,19 +974,22 @@ locals {
   # Auto-generate apps from containers with create_app enabled
   container_generated_apps_raw = [
     {
-      name       = try(data.coder_parameter.container_1_name[0].value, "")
-      create_app = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
-      first_port = try(jsondecode(data.coder_parameter.container_1_ports[0].value)[0], null)
+      name        = try(data.coder_parameter.container_1_name[0].value, "")
+      create_app  = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
+      port        = try(data.coder_parameter.container_1_ports[0].value, "")
+      local_port  = try(data.coder_parameter.container_1_local_port[0].value, "")
     },
     {
-      name       = try(data.coder_parameter.container_2_name[0].value, "")
-      create_app = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
-      first_port = try(jsondecode(data.coder_parameter.container_2_ports[0].value)[0], null)
+      name        = try(data.coder_parameter.container_2_name[0].value, "")
+      create_app  = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
+      port        = try(data.coder_parameter.container_2_ports[0].value, "")
+      local_port  = try(data.coder_parameter.container_2_local_port[0].value, "")
     },
     {
-      name       = try(data.coder_parameter.container_3_name[0].value, "")
-      create_app = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
-      first_port = try(jsondecode(data.coder_parameter.container_3_ports[0].value)[0], null)
+      name        = try(data.coder_parameter.container_3_name[0].value, "")
+      create_app  = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
+      port        = try(data.coder_parameter.container_3_ports[0].value, "")
+      local_port  = try(data.coder_parameter.container_3_local_port[0].value, "")
     }
   ]
 
@@ -935,13 +1000,13 @@ locals {
       icon         = local.icon.globe
       share        = "owner"
       subdomain    = true
-      original_url = "http://d_${container.name}:${container.first_port}"
+      original_url = "http://d_${container.name}:${container.port}"
       remote_host  = "d_${container.name}"
-      remote_port  = tonumber(container.first_port)
-      local_port   = 19000 + tonumber(container.first_port)
-      proxy_url    = "http://localhost:${19000 + tonumber(container.first_port)}"
+      remote_port  = tonumber(container.port)
+      local_port   = tonumber(container.local_port)
+      proxy_url    = "http://localhost:${container.local_port}"
     }
-    if container.name != "" && container.create_app == "true" && container.first_port != null
+    if container.name != "" && container.create_app == "true" && container.port != "" && container.local_port != ""
   ]
 
   # Combine preset, container-generated, and manually-defined custom apps
