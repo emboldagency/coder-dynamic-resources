@@ -157,11 +157,18 @@ data "coder_parameter" "container_1_env_vars" {
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
   description  = local.desc.env_vars
+  form_type    = "textarea"
   type         = "string"
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
   order        = var.order + 7
+  styling = jsonencode({
+  placeholder = <<-PL
+    NODE_ENV=production
+    DEBUG=false
+    PL
+  })
 }
 
 data "coder_parameter" "container_2_name" {
@@ -227,11 +234,18 @@ data "coder_parameter" "container_2_env_vars" {
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
   description  = local.desc.env_vars
+  form_type    = "textarea"
   type         = "string"
   icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
   mutable      = true
   default      = ""
   order        = var.order + 12
+  styling = jsonencode({
+  placeholder = <<-PL
+    NODE_ENV=production
+    DEBUG=false
+    PL
+  })
 }
 
 data "coder_parameter" "container_3_name" {
@@ -303,6 +317,12 @@ data "coder_parameter" "container_3_env_vars" {
   mutable      = true
   default      = ""
   order        = var.order + 17
+  styling = jsonencode({
+  placeholder = <<-PL
+    NODE_ENV=production
+    DEBUG=false
+    PL
+  })
 }
 
 data "coder_parameter" "custom_coder_app_count" {
@@ -553,21 +573,21 @@ locals {
   )
   # Shared description templates to avoid repeating long strings across parameter blocks
   desc = {
-    container_name = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\nExample: *'redis', 'postgres', or 'my-service'*"
+    container_name  = "Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.\n\nExample: *'redis', 'postgres', or 'my-service'*"
     container_image = "Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).\n\nExample: *'postgres:15-alpine'*"
     container_ports = "Select internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host). Use the tag selector to add one or more ports.\n\nExample: *'6379' or '8080' and '3000'*"
-    volume_mounts = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.\n\nExample: *'postgres-data:/var/lib/postgresql/data' or 'uploads:/srv/uploads'*"
-    env_vars = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\nExample:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold"
-    app_slug = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\nExample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*"
-    app_url = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\nExample: *'http://redis:6379' or 'http://localhost:9000/path'*"
-    app_icon = "Icon path or emoji code for the app. \n\nExample: *'/icon/redis.svg' or '/emojis/1f310.png'*"
+    volume_mounts   = "Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.\n\nExample: *'postgres-data:/var/lib/postgresql/data' or 'uploads:/srv/uploads'*"
+    env_vars        = "One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.\n\nExample:\nPOSTGRES_USER=embold\nPOSTGRES_PASSWORD=embold"
+    app_slug        = "URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.\n\nExample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*"
+    app_url         = "Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.\n\nExample: *'http://redis:6379' or 'http://localhost:9000/path'*"
+    app_icon        = "Icon path or emoji code for the app. \n\nExample: *'/icon/redis.svg' or '/emojis/1f310.png'*"
   }
   # Preset configurations for common services
   preset_configs = {
     redis = {
       containers = [{
-        name   = "redis"
-        image  = "redis:7-alpine"
+        name  = "redis"
+        image = "redis:7-alpine"
         # ports  = [6379]
         env    = []
         mounts = {}
