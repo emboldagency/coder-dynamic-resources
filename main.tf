@@ -861,6 +861,7 @@ locals {
       icon         = app.icon
       share        = app.share
       original_url = app.url
+      remote_host  = regex("https?://([^:/]+)", app.url)[0]
       remote_port  = can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80)
       local_port   = 19000 + (can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80))
       proxy_url    = "http://localhost:${19000 + (can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80))}"
@@ -900,6 +901,7 @@ locals {
       icon         = app.icon
       share        = app.share
       original_url = app.original_url
+      remote_host  = regex("https?://([^:/]+)", app.original_url)[0]
       remote_port  = can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80)
       local_port   = 19000 + (can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80))
       proxy_url    = "http://localhost:${19000 + (can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80))}"
@@ -909,19 +911,19 @@ locals {
   # Auto-generate apps from containers with create_app enabled
   container_generated_apps_raw = [
     {
-      name         = try(data.coder_parameter.container_1_name[0].value, "")
-      create_app   = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
-      first_port   = try(jsondecode(data.coder_parameter.container_1_ports[0].value)[0], null)
+      name       = try(data.coder_parameter.container_1_name[0].value, "")
+      create_app = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
+      first_port = try(jsondecode(data.coder_parameter.container_1_ports[0].value)[0], null)
     },
     {
-      name         = try(data.coder_parameter.container_2_name[0].value, "")
-      create_app   = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
-      first_port   = try(jsondecode(data.coder_parameter.container_2_ports[0].value)[0], null)
+      name       = try(data.coder_parameter.container_2_name[0].value, "")
+      create_app = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
+      first_port = try(jsondecode(data.coder_parameter.container_2_ports[0].value)[0], null)
     },
     {
-      name         = try(data.coder_parameter.container_3_name[0].value, "")
-      create_app   = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
-      first_port   = try(jsondecode(data.coder_parameter.container_3_ports[0].value)[0], null)
+      name       = try(data.coder_parameter.container_3_name[0].value, "")
+      create_app = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
+      first_port = try(jsondecode(data.coder_parameter.container_3_ports[0].value)[0], null)
     }
   ]
 
@@ -931,7 +933,8 @@ locals {
       slug         = lower(replace(container.name, " ", "-"))
       icon         = local.icon.globe
       share        = "owner"
-      original_url = "http://localhost:${container.first_port}"
+      original_url = "http://d_${container.name}:${container.first_port}"
+      remote_host  = "d_${container.name}"
       remote_port  = tonumber(container.first_port)
       local_port   = 19000 + tonumber(container.first_port)
       proxy_url    = "http://localhost:${19000 + tonumber(container.first_port)}"
@@ -946,12 +949,11 @@ locals {
   proxy_mappings_str = join(" ", [
     for app in local.additional_apps :
     # Format: "local_port:remote_host:remote_port"
-    # Handle URLs with or without explicit ports (default to 80 for http, 443 for https)
     format(
-      "%d:%s:%s",
+      "%d:%s:%d",
       app.local_port,
-      regex("https?://([^:/]+)", app.original_url)[0],
-      can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? regex("https?://[^:/]+:(\\d+)", app.original_url)[0] : (startswith(app.original_url, "https://") ? "443" : "80")
+      app.remote_host,
+      app.remote_port
     )
     if app.original_url != null && app.original_url != ""
   ])
