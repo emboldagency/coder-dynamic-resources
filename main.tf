@@ -999,7 +999,6 @@ locals {
       slug         = lower(replace(container.name, " ", "-"))
       icon         = local.icon.globe
       share        = "owner"
-      subdomain    = true
       original_url = "http://d_${container.name}:${container.port}"
       remote_host  = "d_${container.name}"
       remote_port  = tonumber(container.port)
@@ -1158,6 +1157,7 @@ resource "coder_app" "dynamic_app" {
   url          = each.value.proxy_url
   icon         = each.value.icon
   share        = each.value.share
+  subdomain    = true
 }
 
 # Display metadata for each dynamic container showing how to reach them
