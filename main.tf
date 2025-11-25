@@ -23,7 +23,7 @@ data "coder_parameter" "quick_setup_preset" {
   name         = "quick_setup_preset"
   display_name = "Quick Setup"
   description  = "Choose a common service preset to quickly add to your workspace"
-  icon         = "/emojis/26a1.png" # Lightning bolt
+  icon         = local.icon.lightning_bolt
   type         = "string"
   mutable      = true
   default      = "none"
@@ -56,7 +56,7 @@ data "coder_parameter" "additional_volumes" {
   name         = "additional_volumes"
   display_name = "Additional Volumes to Create"
   description  = "List of all persistent volume names to create for this workspace. You can then mount them into containers below. \n\nExample: *[\"my-cache\", \"shared-uploads\"]*"
-  icon         = "/icon/folder.svg"
+  icon         = local.icon.folder
   type         = "list(string)"
   form_type    = "tag-select"
   mutable      = true
@@ -69,6 +69,7 @@ data "coder_parameter" "custom_container_count" {
   display_name = "Additional Container Count"
   description  = "Number of additional Docker containers to create (0-3). Set to 0 to skip adding containers."
   type         = "number"
+  icon         = local.icon.docker
   form_type    = "slider"
   mutable      = true
   default      = 0
@@ -100,7 +101,7 @@ data "coder_parameter" "container_1_name" {
   display_name = "Container #1: Name"
   description  = local.desc.container_name
   type         = "string"
-  icon         = "/emojis/1f4db.png" # Name badge
+  icon         = local.icon.name_badge
   mutable      = true
   default      = ""
   order        = var.order + 3
@@ -115,7 +116,7 @@ data "coder_parameter" "container_1_image" {
   name         = "container_1_image"
   display_name = "Container #1: Image"
   description  = local.desc.container_image
-  icon         = "/icon/docker.svg"
+  icon         = local.icon.docker
   type         = "string"
   mutable      = true
   default      = ""
@@ -131,7 +132,7 @@ data "coder_parameter" "container_1_ports" {
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
   description  = local.desc.container_ports
-  icon         = "/emojis/1f50c.png" # Electrical plug
+  icon         = local.icon.electrical_plug
   type         = "list(string)"
   form_type    = "tag-select"
   mutable      = true
@@ -146,7 +147,7 @@ data "coder_parameter" "container_1_volume_mounts" {
   description  = local.desc.volume_mounts
   type         = "list(string)"
   form_type    = "tag-select"
-  icon         = "/icon/folder.svg"
+  icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
   order        = var.order + 6
@@ -159,12 +160,12 @@ data "coder_parameter" "container_1_env_vars" {
   description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
-  icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
+  icon         = local.icon.asterisk
   mutable      = true
   default      = ""
   order        = var.order + 7
   styling = jsonencode({
-  placeholder = <<-PL
+    placeholder = <<-PL
     NODE_ENV=production
     DEBUG=false
     PL
@@ -177,7 +178,7 @@ data "coder_parameter" "container_2_name" {
   display_name = "Container #2: Name"
   description  = local.desc.container_name
   type         = "string"
-  icon         = "/emojis/1f4db.png" # Name badge
+  icon         = local.icon.name_badge
   mutable      = true
   default      = ""
   order        = var.order + 8
@@ -192,7 +193,7 @@ data "coder_parameter" "container_2_image" {
   name         = "container_2_image"
   display_name = "Container #2: Image"
   description  = local.desc.container_image
-  icon         = "/icon/docker.svg"
+  icon         = local.icon.docker
   type         = "string"
   mutable      = true
   default      = ""
@@ -208,7 +209,7 @@ data "coder_parameter" "container_2_ports" {
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
   description  = local.desc.container_ports
-  icon         = "/emojis/1f50c.png" # Electrical plug
+  icon         = local.icon.electrical_plug
   type         = "list(string)"
   form_type    = "tag-select"
   mutable      = true
@@ -223,7 +224,7 @@ data "coder_parameter" "container_2_volume_mounts" {
   description  = local.desc.volume_mounts
   type         = "list(string)"
   form_type    = "tag-select"
-  icon         = "/icon/folder.svg"
+  icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
   order        = var.order + 11
@@ -236,12 +237,12 @@ data "coder_parameter" "container_2_env_vars" {
   description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
-  icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
+  icon         = local.icon.asterisk
   mutable      = true
   default      = ""
   order        = var.order + 12
   styling = jsonencode({
-  placeholder = <<-PL
+    placeholder = <<-PL
     NODE_ENV=production
     DEBUG=false
     PL
@@ -254,7 +255,7 @@ data "coder_parameter" "container_3_name" {
   display_name = "Container #3: Name"
   description  = local.desc.container_name
   type         = "string"
-  icon         = "/emojis/1f4db.png" # Name badge
+  icon         = local.icon.name_badge
   mutable      = true
   default      = ""
   order        = var.order + 13
@@ -269,7 +270,7 @@ data "coder_parameter" "container_3_image" {
   name         = "container_3_image"
   display_name = "Container #3: Image"
   description  = local.desc.container_image
-  icon         = "/icon/docker.svg"
+  icon         = local.icon.docker
   type         = "string"
   mutable      = true
   default      = ""
@@ -285,7 +286,7 @@ data "coder_parameter" "container_3_ports" {
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
   description  = local.desc.container_ports
-  icon         = "/emojis/1f50c.png" # Electrical plug
+  icon         = local.icon.electrical_plug
   type         = "list(string)"
   form_type    = "tag-select"
   mutable      = true
@@ -300,7 +301,7 @@ data "coder_parameter" "container_3_volume_mounts" {
   description  = local.desc.volume_mounts
   type         = "list(string)"
   form_type    = "tag-select"
-  icon         = "/icon/folder.svg"
+  icon         = local.icon.folder
   mutable      = true
   default      = jsonencode([])
   order        = var.order + 16
@@ -313,12 +314,12 @@ data "coder_parameter" "container_3_env_vars" {
   description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
-  icon         = "/emojis/2733.png" # Eight-Spoked Asterisk
+  icon         = local.icon.asterisk
   mutable      = true
   default      = ""
   order        = var.order + 17
   styling = jsonencode({
-  placeholder = <<-PL
+    placeholder = <<-PL
     NODE_ENV=production
     DEBUG=false
     PL
@@ -330,6 +331,7 @@ data "coder_parameter" "custom_coder_app_count" {
   display_name = "Additional Coder App Count"
   description  = "Number of additional Coder Apps to create (0-3). Set to 0 to skip adding apps."
   type         = "number"
+  icon         = local.icon.radio_button
   form_type    = "slider"
   mutable      = true
   default      = 0
@@ -346,6 +348,7 @@ data "coder_parameter" "app_1_name" {
   name         = "app_1_name"
   display_name = "Coder App #1: Name"
   type         = "string"
+  icon         = local.icon.name_badge
   mutable      = true
   default      = ""
   order        = var.order + 19
@@ -357,6 +360,7 @@ data "coder_parameter" "app_1_slug" {
   display_name = "Coder App #1: Slug"
   description  = local.desc.app_slug
   type         = "string"
+  icon         = local.icon.snail
   mutable      = true
   default      = ""
   order        = var.order + 20
@@ -372,6 +376,7 @@ data "coder_parameter" "app_1_url" {
   display_name = "Coder App #1: URL"
   description  = local.desc.app_url
   type         = "string"
+  icon         = local.icon.paperclip
   mutable      = true
   default      = ""
   order        = var.order + 21
@@ -387,6 +392,7 @@ data "coder_parameter" "app_1_icon" {
   display_name = "Coder App #1: Icon"
   description  = local.desc.app_icon
   type         = "string"
+  icon         = local.icon.image
   mutable      = true
   default      = ""
   order        = var.order + 22
@@ -397,6 +403,7 @@ data "coder_parameter" "app_1_share" {
   name         = "app_1_share"
   display_name = "Coder App #1: Share Level"
   type         = "string"
+  icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
   order        = var.order + 23
@@ -419,6 +426,7 @@ data "coder_parameter" "app_2_name" {
   name         = "app_2_name"
   display_name = "Coder App #2: Name"
   type         = "string"
+  icon         = local.icon.name_badge
   mutable      = true
   default      = ""
   order        = var.order + 24
@@ -430,6 +438,7 @@ data "coder_parameter" "app_2_slug" {
   display_name = "Coder App #2: Slug"
   description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\nExample: *'adminer'*"
   type         = "string"
+  icon         = local.icon.snail
   mutable      = true
   default      = ""
   order        = var.order + 25
@@ -445,6 +454,7 @@ data "coder_parameter" "app_2_url" {
   display_name = "Coder App #2: URL"
   description  = "Internal service URL reachable from the workspace.\n\nExample: *'http://adminer:8080'*"
   type         = "string"
+  icon         = local.icon.paperclip
   mutable      = true
   default      = ""
   order        = var.order + 26
@@ -460,6 +470,7 @@ data "coder_parameter" "app_2_icon" {
   display_name = "Coder App #2: Icon"
   description  = "Icon path or emoji code for the app.\n\nExample: *'/icon/adminer.svg'*"
   type         = "string"
+  icon         = local.icon.image
   mutable      = true
   default      = ""
   order        = var.order + 27
@@ -470,6 +481,7 @@ data "coder_parameter" "app_2_share" {
   name         = "app_2_share"
   display_name = "Coder App #2: Share Level"
   type         = "string"
+  icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
   order        = var.order + 28
@@ -492,6 +504,7 @@ data "coder_parameter" "app_3_name" {
   name         = "app_3_name"
   display_name = "Coder App #3: Name"
   type         = "string"
+  icon         = local.icon.name_badge
   mutable      = true
   default      = ""
   order        = var.order + 29
@@ -503,6 +516,7 @@ data "coder_parameter" "app_3_slug" {
   display_name = "Coder App #3: Slug"
   description  = "URL-safe identifier (lowercase, hyphens, underscores).\n\nExample: *'mailpit'*"
   type         = "string"
+  icon         = local.icon.snail
   mutable      = true
   default      = ""
   order        = var.order + 30
@@ -518,6 +532,7 @@ data "coder_parameter" "app_3_url" {
   display_name = "Coder App #3: URL"
   description  = "Internal service URL reachable from the workspace.\n\nExample: *'http://mailpit:8025'*"
   type         = "string"
+  icon         = local.icon.paperclip
   mutable      = true
   default      = ""
   order        = var.order + 31
@@ -533,6 +548,7 @@ data "coder_parameter" "app_3_icon" {
   display_name = "Coder App #3: Icon"
   description  = "Icon path or emoji code for the app.\n\nExample: *'https://mailpit.axllent.org/images/mailpit.svg'*"
   type         = "string"
+  icon         = local.icon.image
   mutable      = true
   default      = ""
   order        = var.order + 32
@@ -543,6 +559,7 @@ data "coder_parameter" "app_3_share" {
   name         = "app_3_share"
   display_name = "Coder App #3: Share Level"
   type         = "string"
+  icon         = local.icon.locked_with_pen
   default      = "owner"
   mutable      = true
   order        = var.order + 33
@@ -642,6 +659,21 @@ locals {
       volumes = ["mongo-data"]
       apps    = []
     }
+  }
+
+  icon = {
+    asterisk        = "/emojis/2733-fe0f.png"
+    docker          = "/emojis/1f433.png"
+    electrical_plug = "/emojis/1f50c.png"
+    folder          = "/emojis/1f4c1.png"
+    globe           = "/emojis/1f310.png"
+    image           = "/emojis/1f517.png"
+    lightning_bolt  = "/emojis/26a1.png"
+    locked_with_pen = "/emojis/1f50f.png"
+    name_badge      = "/emojis/1f4db.png"
+    paperclip       = "/emojis/1f517.png"
+    radio_button    = "/emojis/1f518.png"
+    snail           = "/emojis/1f40c.png"
   }
 
   # Check if user selected a preset
@@ -895,7 +927,7 @@ resource "coder_script" "dynamic_resources_reverse_proxy" {
   count              = data.coder_workspace.me.start_count
   agent_id           = var.agent_id
   display_name       = "Dynamic Resources Proxy"
-  icon               = "/icon/globe.svg"
+  icon               = local.icon.globe
   run_on_start       = true
   start_blocks_login = false # Don't block login, it runs in background
   script             = templatefile("${path.module}/run.sh", { PROXY_LINE = local.proxy_mappings_str })
