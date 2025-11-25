@@ -100,7 +100,8 @@ data "coder_parameter" "custom_container_count" {
 
 # --- Fixed parameter sets for up to 3 containers (leave blank to skip) ---
 data "coder_parameter" "container_1_name" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  # Always present to preserve entered values; selection controlled later by custom_container_count
+  count        = 1
   name         = "container_1_name"
   display_name = "Container #1: Name"
   description  = local.desc.container_name
@@ -116,7 +117,7 @@ data "coder_parameter" "container_1_name" {
 }
 
 data "coder_parameter" "container_1_image" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  count        = 1
   name         = "container_1_image"
   display_name = "Container #1: Image"
   description  = local.desc.container_image
@@ -132,7 +133,7 @@ data "coder_parameter" "container_1_image" {
 }
 
 data "coder_parameter" "container_1_ports" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  count        = 1
   name         = "container_1_ports"
   display_name = "Container #1: Internal Ports"
   description  = local.desc.container_ports
@@ -145,7 +146,7 @@ data "coder_parameter" "container_1_ports" {
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  count        = 1
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
   description  = local.desc.volume_mounts
@@ -158,7 +159,7 @@ data "coder_parameter" "container_1_volume_mounts" {
 }
 
 data "coder_parameter" "container_1_env_vars" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  count        = 1
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
   description  = local.desc.env_vars
@@ -177,7 +178,7 @@ data "coder_parameter" "container_1_env_vars" {
 }
 
 data "coder_parameter" "container_1_create_coder_app" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 1 ? 1 : 0
+  count        = 1
   name         = "container_1_create_coder_app"
   display_name = "Container #1: Create Coder App?"
   description  = "Automatically create a Coder app button to access this container's web interface"
@@ -189,7 +190,7 @@ data "coder_parameter" "container_1_create_coder_app" {
 }
 
 data "coder_parameter" "container_2_name" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  count        = 1
   name         = "container_2_name"
   display_name = "Container #2: Name"
   description  = local.desc.container_name
@@ -205,7 +206,7 @@ data "coder_parameter" "container_2_name" {
 }
 
 data "coder_parameter" "container_2_image" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  count        = 1
   name         = "container_2_image"
   display_name = "Container #2: Image"
   description  = local.desc.container_image
@@ -221,7 +222,7 @@ data "coder_parameter" "container_2_image" {
 }
 
 data "coder_parameter" "container_2_ports" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  count        = 1
   name         = "container_2_ports"
   display_name = "Container #2: Internal Ports"
   description  = local.desc.container_ports
@@ -234,7 +235,7 @@ data "coder_parameter" "container_2_ports" {
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  count        = 1
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
   description  = local.desc.volume_mounts
@@ -247,7 +248,7 @@ data "coder_parameter" "container_2_volume_mounts" {
 }
 
 data "coder_parameter" "container_2_env_vars" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  count        = 1
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
   description  = local.desc.env_vars
@@ -266,7 +267,7 @@ data "coder_parameter" "container_2_env_vars" {
 }
 
 data "coder_parameter" "container_2_create_coder_app" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 2 ? 1 : 0
+  count        = 1
   name         = "container_2_create_coder_app"
   display_name = "Container #2: Create Coder App?"
   description  = "Automatically create a Coder app button to access this container's web interface"
@@ -278,7 +279,7 @@ data "coder_parameter" "container_2_create_coder_app" {
 }
 
 data "coder_parameter" "container_3_name" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  count        = 1
   name         = "container_3_name"
   display_name = "Container #3: Name"
   description  = local.desc.container_name
@@ -294,7 +295,7 @@ data "coder_parameter" "container_3_name" {
 }
 
 data "coder_parameter" "container_3_image" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  count        = 1
   name         = "container_3_image"
   display_name = "Container #3: Image"
   description  = local.desc.container_image
@@ -310,7 +311,7 @@ data "coder_parameter" "container_3_image" {
 }
 
 data "coder_parameter" "container_3_ports" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  count        = 1
   name         = "container_3_ports"
   display_name = "Container #3: Internal Ports"
   description  = local.desc.container_ports
@@ -323,7 +324,7 @@ data "coder_parameter" "container_3_ports" {
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  count        = 1
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
   description  = local.desc.volume_mounts
@@ -336,7 +337,7 @@ data "coder_parameter" "container_3_volume_mounts" {
 }
 
 data "coder_parameter" "container_3_env_vars" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  count        = 1
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
   description  = local.desc.env_vars
@@ -355,7 +356,7 @@ data "coder_parameter" "container_3_env_vars" {
 }
 
 data "coder_parameter" "container_3_create_coder_app" {
-  count        = try(tonumber(data.coder_parameter.custom_container_count.value), 0) >= 3 ? 1 : 0
+  count        = 1
   name         = "container_3_create_coder_app"
   display_name = "Container #3: Create Coder App?"
   description  = "Automatically create a Coder app button to access this container's web interface"
@@ -933,6 +934,7 @@ locals {
       slug         = lower(replace(container.name, " ", "-"))
       icon         = local.icon.globe
       share        = "owner"
+      subdomain    = true
       original_url = "http://d_${container.name}:${container.first_port}"
       remote_host  = "d_${container.name}"
       remote_port  = tonumber(container.first_port)
@@ -1043,11 +1045,21 @@ resource "docker_container" "dynamic_resource_container" {
   # }
 
   # Use a dynamic block to create volume mounts for this container.
+  # Separate named Docker volumes (created via docker_volume) from host bind paths.
+  # This prevents invalid index errors when a mount key is actually a host path.
   dynamic "volumes" {
-    for_each = each.value.mounts
+    for_each = { for k, v in each.value.mounts : k => v if contains(keys(docker_volume.dynamic_resource_volume), k) }
     content {
       container_path = volumes.value
       volume_name    = docker_volume.dynamic_resource_volume[volumes.key].name
+      read_only      = false
+    }
+  }
+  dynamic "volumes" {
+    for_each = { for k, v in each.value.mounts : k => v if !contains(keys(docker_volume.dynamic_resource_volume), k) }
+    content {
+      container_path = volumes.value
+      host_path      = volumes.key
       read_only      = false
     }
   }
