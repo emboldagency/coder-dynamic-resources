@@ -58,7 +58,7 @@ data "coder_parameter" "additional_volumes" {
   description  = <<-DESC
     List of all persistent volume names to create for this workspace. You can then mount them into containers below.
 
-      Example: *["my-cache", "shared-uploads"]*"
+      Example: `my-cache,shared-uploads`
   DESC
   icon         = local.icon.folder
   type         = "list(string)"
@@ -443,7 +443,7 @@ data "coder_parameter" "app_2_slug" {
   description  = <<-DESC
     URL-safe identifier (lowercase, hyphens, underscores).
 
-      Example: *'adminer'*
+      Example: `adminer`
   DESC
   type         = "string"
   icon         = local.icon.snail
@@ -463,7 +463,7 @@ data "coder_parameter" "app_2_url" {
   description  = <<-DESC
     Internal service URL reachable from the workspace.
 
-      Example: *'http://adminer:8080'*
+      Example: `http://adminer:8080`
   DESC
   type         = "string"
   icon         = local.icon.paperclip
@@ -483,7 +483,7 @@ data "coder_parameter" "app_2_icon" {
   description  = <<-DESC
     Icon path or emoji code for the app.
 
-      Example: *'/icon/adminer.svg'*
+      Example: `/icon/adminer.svg`
   DESC
   type         = "string"
   icon         = local.icon.image
@@ -533,7 +533,7 @@ data "coder_parameter" "app_3_slug" {
   description  = <<-DESC
     URL-safe identifier (lowercase, hyphens, underscores).
 
-      Example: *'mailpit'*
+      Example: `mailpit`
   DESC
   type         = "string"
   icon         = local.icon.snail
@@ -553,7 +553,7 @@ data "coder_parameter" "app_3_url" {
   description  = <<-DESC
     Internal service URL reachable from the workspace.
 
-      Example: *'http://mailpit:8025'*
+      Example: `http://mailpit:8025`
   DESC
   type         = "string"
   icon         = local.icon.paperclip
@@ -573,7 +573,7 @@ data "coder_parameter" "app_3_icon" {
   description  = <<-DESC
     Icon path or emoji code for the app.
 
-      Example: *'https://mailpit.axllent.org/images/mailpit.svg'*
+      Example: `https://mailpit.axllent.org/images/mailpit.svg`
   DESC
   type         = "string"
   icon         = local.icon.image
@@ -621,46 +621,47 @@ locals {
     container_name  = <<-DESC
       Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.
 
-        Example: *'redis', 'postgres', or 'my-service'*
+      Example: `redis`, `postgres`, or `my-service`
     DESC
     container_image = <<-DESC
-      Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: '<repository>/<image>:<tag>' or '<image>:<tag>' or '<image>' (defaults to latest).
+      Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: `<repository>/<image>:<tag>` or `<image>:<tag>` or `<image>`.
 
-        Example: *'postgres:15-alpine'*
+      Example: `postgres:15-alpine`
     DESC
     container_ports = <<-DESC
       Select internal container ports (1-65535) to expose to the reverse proxy. These are container-internal ports only (not published to the host). Use the tag selector to add one or more ports.
 
-        Example: *'6379' or '8080' and '3000'*
+      Example: `8080`
     DESC
     volume_mounts   = <<-DESC
       Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.
 
-        Example: *'postgres-data:/var/lib/postgresql/data' or 'uploads:/srv/uploads'*
+      Example: `postgres-data:/var/lib/postgresql/data` or `uploads:/srv/uploads`
     DESC
     env_vars        = <<-DESC
       One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.
 
-        Example:
+      Example:
         ```
         POSTGRES_USER=embold
+
         POSTGRES_PASSWORD=embold
         ```
     DESC
     app_slug        = <<-DESC
       URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.
 
-        xample: *'redis-cli' becomes available at /apps/redis-cli or as a proxy mapping*
+      Example: `redis-cli`
     DESC
     app_url         = <<-DESC
       Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.
 
-        Example: *'http://redis:6379' or 'http://localhost:9000/path'*
+      Example: `http://redis:6379` or `http://localhost:9000/path`
     DESC
     app_icon        = <<-DESC
       Icon path or emoji code for the app.
 
-        Example: *'/icon/redis.svg' or '/emojis/1f310.png'*
+      Example: `/icon/redis.svg` or `/emojis/1f310.png`
     DESC
   }
   # Preset configurations for common services
