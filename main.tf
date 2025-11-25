@@ -825,8 +825,9 @@ locals {
       icon         = app.icon
       share        = app.share
       original_url = app.url
-      local_port   = 9000 + i
-      proxy_url    = "http://localhost:${9000 + i}"
+      remote_port  = can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80)
+      local_port   = 19000 + (can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80))
+      proxy_url    = "http://localhost:${19000 + (can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80))}"
     }
   ] : []
 
@@ -863,8 +864,9 @@ locals {
       icon         = app.icon
       share        = app.share
       original_url = app.original_url
-      local_port   = length(local.preset_apps) + index
-      proxy_url    = "http://localhost:${length(local.preset_apps) + index}"
+      remote_port  = can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80)
+      local_port   = 19000 + (can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80))
+      proxy_url    = "http://localhost:${19000 + (can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80))}"
     } if app.name != "" && app.slug != ""
   ]
 
