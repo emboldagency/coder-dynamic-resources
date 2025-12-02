@@ -1158,6 +1158,7 @@ resource "coder_app" "dynamic_app" {
   icon         = each.value.icon
   share        = each.value.share
   subdomain    = true
+  order        = 2
 }
 
 # Display metadata for each dynamic container showing how to reach them
