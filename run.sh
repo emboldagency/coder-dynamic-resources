@@ -13,7 +13,6 @@ PROXY_LINE="${PROXY_LINE}"
 
 # Exit if there are no proxies to create.
 if [[ -z "$PROXY_LINE" ]]; then
-  echo "No proxy mappings defined, exiting."
   exit 0
 fi
 
