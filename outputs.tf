@@ -1,6 +1,6 @@
 output "startup_script_fragment" {
   description = "A shell script fragment to be inserted into the main coder_agent startup script. Sets up socat reverse proxies."
-  value = <<-EOT
+  value       = <<-EOT
     # --- START DYNAMIC SERVICES PROXY SCRIPT ---
     set +e
     PROXY_LINE="${local.proxy_mappings_str}"
@@ -42,11 +42,6 @@ output "created_containers" {
 }
 
 output "created_apps" {
-  description = "List of Coder app slugs created by this module"  
+  description = "List of Coder app slugs created by this module"
   value       = [for a in coder_app.dynamic_app : a.slug]
-}
-
-output "preset_used" {
-  description = "The preset configuration that was applied (if any)"
-  value       = local.selected_preset != "none" ? local.selected_preset : null
 }

@@ -18,36 +18,213 @@ variable "order" {
   default     = 0
 }
 
-# --- Section: Quick Setup Presets ---
-data "coder_parameter" "quick_setup_preset" {
-  name         = "quick_setup_preset"
-  display_name = "Quick Setup"
-  description  = "Choose a common service preset to quickly add to your workspace"
-  icon         = local.icon.lightning_bolt
-  type         = "string"
-  mutable      = true
-  default      = "none"
-  order        = var.order + 0
+data "coder_workspace" "me" {}
 
-  option {
-    name  = "None (Custom Setup)"
-    value = "none"
+locals {
+  # Derive a simple sanitized workspace name: replace hyphens and spaces with underscores and lowercase.
+  sanitized_workspace_name = (
+    length(trimspace(try(data.coder_workspace.me.name, ""))) > 0
+    ? lower(replace(replace(try(data.coder_workspace.me.name, ""), "-", "_"), " ", "_"))
+    : "workspace"
+  )
+
+  # Get explicit volume names from parameter
+  base_volume_names = try(jsondecode(data.coder_parameter.additional_volumes.value), [])
+
+  # Build custom containers list (merging base parameters and filtering empties)
+  custom_containers = [
+    for i, c in [
+      {
+        name   = try(data.coder_parameter.container_1_name[0].value, "")
+        image  = try(data.coder_parameter.container_1_image[0].value, "")
+        mounts = { for m in try(jsondecode(data.coder_parameter.container_1_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
+        env    = [for l in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
+      },
+      {
+        name   = try(data.coder_parameter.container_2_name[0].value, "")
+        image  = try(data.coder_parameter.container_2_image[0].value, "")
+        mounts = { for m in try(jsondecode(data.coder_parameter.container_2_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
+        env    = [for l in split("\n", try(data.coder_parameter.container_2_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
+      },
+      {
+        name   = try(data.coder_parameter.container_3_name[0].value, "")
+        image  = try(data.coder_parameter.container_3_image[0].value, "")
+        mounts = { for m in try(jsondecode(data.coder_parameter.container_3_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
+        env    = [for l in split("\n", try(data.coder_parameter.container_3_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
+      }
+    ] : merge(c, { custom_index = i + 1 })
+    if c.name != "" && c.image != ""
+  ]
+
+  # Identify implicit volumes from mounts (keys that don't look like paths)
+  implicit_volume_names = flatten([
+    for c in local.custom_containers : keys({
+      for k, v in c.mounts : k => v
+      if !startswith(k, "/") && !startswith(k, ".") && !startswith(k, "~")
+    })
+  ])
+
+  # Combine explicit and implicit volumes
+  volume_names_to_create = distinct(concat(local.base_volume_names, local.implicit_volume_names))
+
+  # Map for for_each resources
+  all_containers_map = { for c in local.custom_containers : "custom-${c.custom_index}" => c }
+
+  # Build apps from fixed parameter slots
+  custom_apps = [
+    for index, app in [
+      {
+        name         = try(data.coder_parameter.app_1_name[0].value, "")
+        slug         = try(data.coder_parameter.app_1_slug[0].value, "")
+        icon         = try(data.coder_parameter.app_1_icon[0].value, "")
+        share        = try(data.coder_parameter.app_1_share[0].value, "owner")
+        original_url = try(data.coder_parameter.app_1_url[0].value, "")
+      },
+      {
+        name         = try(data.coder_parameter.app_2_name[0].value, "")
+        slug         = try(data.coder_parameter.app_2_slug[0].value, "")
+        icon         = try(data.coder_parameter.app_2_icon[0].value, "")
+        share        = try(data.coder_parameter.app_2_share[0].value, "owner")
+        original_url = try(data.coder_parameter.app_2_url[0].value, "")
+      },
+      {
+        name         = try(data.coder_parameter.app_3_name[0].value, "")
+        slug         = try(data.coder_parameter.app_3_slug[0].value, "")
+        icon         = try(data.coder_parameter.app_3_icon[0].value, "")
+        share        = try(data.coder_parameter.app_3_share[0].value, "owner")
+        original_url = try(data.coder_parameter.app_3_url[0].value, "")
+      }
+      ] : {
+      name         = app.name
+      slug         = app.slug
+      icon         = app.icon
+      share        = app.share
+      original_url = app.original_url
+      remote_host  = try(regex("https?://([^:/]+)", app.original_url)[0], "")
+      remote_port  = try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)
+      local_port   = 19000 + try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)
+      proxy_url    = "http://localhost:${19000 + try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)}"
+    } if app.name != "" && app.slug != ""
+  ]
+
+  # Auto-generate apps from containers
+  container_generated_apps = [
+    for container in [
+      {
+        name       = try(data.coder_parameter.container_1_name[0].value, "")
+        create_app = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
+        port       = try(data.coder_parameter.container_1_ports[0].value, "")
+        local_port = try(data.coder_parameter.container_1_local_port[0].value, "")
+      },
+      {
+        name       = try(data.coder_parameter.container_2_name[0].value, "")
+        create_app = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
+        port       = try(data.coder_parameter.container_2_ports[0].value, "")
+        local_port = try(data.coder_parameter.container_2_local_port[0].value, "")
+      },
+      {
+        name       = try(data.coder_parameter.container_3_name[0].value, "")
+        create_app = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
+        port       = try(data.coder_parameter.container_3_ports[0].value, "")
+        local_port = try(data.coder_parameter.container_3_local_port[0].value, "")
+      }
+      ] : {
+      name         = container.name
+      slug         = lower(replace(container.name, " ", "-"))
+      icon         = local.icon.globe
+      share        = "owner"
+      original_url = "http://d_${container.name}:${container.port}"
+      remote_host  = "d_${container.name}"
+      remote_port  = tonumber(container.port)
+      local_port   = tonumber(container.local_port)
+      proxy_url    = "http://localhost:${container.local_port}"
+    } if container.name != "" && container.create_app == "true" && container.port != "" && container.local_port != ""
+  ]
+
+  # Combine all apps for proxy generation
+  additional_apps = concat(local.container_generated_apps, local.custom_apps)
+
+  # Generate the PROXY_LINE string for the reverse proxy script.
+  proxy_mappings_str = join(" ", [
+    for app in local.additional_apps :
+    format("%d:%s:%d", app.local_port, app.remote_host, app.remote_port)
+    if app.original_url != null && app.original_url != ""
+  ])
+}
+
+data "coder_workspace_preset" "redis" {
+  name        = "redis"
+  description = "Redis Cache"
+  icon        = local.icon.redis
+  parameters = {
+    (data.coder_parameter.container_1_name[0].id)             = "redis",
+    (data.coder_parameter.container_1_image[0].id)            = "redis:7-alpine",
+    (data.coder_parameter.container_1_ports[0].id)            = jsonencode([6379]),
+    (data.coder_parameter.container_1_local_port[0].id)       = "19000",
+    (data.coder_parameter.container_1_volume_mounts[0].id)    = jsonencode(["redis:/data"]),
+    (data.coder_parameter.container_1_create_coder_app[0].id) = "false",
+    (data.coder_parameter.custom_container_count.id)          = 1,
+    (data.coder_parameter.container_1_env_vars[0].id)         = "",
   }
-  option {
-    name  = "Redis Cache"
-    value = "redis"
+}
+
+data "coder_workspace_preset" "postgres" {
+  name        = "postgres"
+  description = "PostgreSQL Database"
+  icon        = local.icon.postgres
+  parameters = {
+    (data.coder_parameter.container_1_name[0].id)             = "postgres",
+    (data.coder_parameter.container_1_image[0].id)            = "postgres:15-alpine",
+    (data.coder_parameter.container_1_ports[0].id)            = jsonencode([5432]),
+    (data.coder_parameter.container_1_local_port[0].id)       = "19001",
+    (data.coder_parameter.container_1_volume_mounts[0].id)    = jsonencode(["postgres:/var/lib/postgresql/data"]),
+    (data.coder_parameter.container_1_create_coder_app[0].id) = "false",
+    (data.coder_parameter.custom_container_count.id)          = 1,
+    (data.coder_parameter.container_1_env_vars[0].id) = join("\n", [
+      "POSTGRES_DB=${local.sanitized_workspace_name}",
+      "POSTGRES_USER=embold",
+      "POSTGRES_PASSWORD=embold"
+    ]),
   }
-  option {
-    name  = "PostgreSQL Database"
-    value = "postgres"
+}
+
+data "coder_workspace_preset" "mysql" {
+  name        = "mysql"
+  description = "MySQL Database"
+  icon        = local.icon.mysql
+  parameters = {
+    (data.coder_parameter.container_1_name[0].id)             = "mysql",
+    (data.coder_parameter.container_1_image[0].id)            = "mysql:8.0",
+    (data.coder_parameter.container_1_ports[0].id)            = jsonencode([3306]),
+    (data.coder_parameter.container_1_local_port[0].id)       = "19002",
+    (data.coder_parameter.container_1_volume_mounts[0].id)    = jsonencode(["mysql:/var/lib/mysql"]),
+    (data.coder_parameter.container_1_create_coder_app[0].id) = "false",
+    (data.coder_parameter.custom_container_count.id)          = 1,
+    (data.coder_parameter.container_1_env_vars[0].id) = join("\n", [
+      "MYSQL_ROOT_PASSWORD=embold",
+      "MYSQL_DATABASE=${local.sanitized_workspace_name}",
+      "MYSQL_USER=embold",
+      "MYSQL_PASSWORD=embold"
+    ]),
   }
-  option {
-    name  = "MySQL Database"
-    value = "mysql"
-  }
-  option {
-    name  = "MongoDB Database"
-    value = "mongo"
+}
+
+data "coder_workspace_preset" "mongo" {
+  name        = "mongo"
+  description = "MongoDB Database"
+  icon        = local.icon.mongo
+  parameters = {
+    (data.coder_parameter.container_1_name[0].id)             = "mongo",
+    (data.coder_parameter.container_1_image[0].id)            = "mongo:7",
+    (data.coder_parameter.container_1_ports[0].id)            = jsonencode([27017]),
+    (data.coder_parameter.container_1_local_port[0].id)       = "19003",
+    (data.coder_parameter.container_1_volume_mounts[0].id)    = jsonencode(["mongo:/data/db"]),
+    (data.coder_parameter.container_1_create_coder_app[0].id) = "false",
+    (data.coder_parameter.custom_container_count.id)          = 1,
+    (data.coder_parameter.container_1_env_vars[0].id) = join("\n", [
+      "MONGO_INITDB_ROOT_USERNAME=embold",
+      "MONGO_INITDB_ROOT_PASSWORD=embold"
+    ]),
   }
 }
 
@@ -698,333 +875,6 @@ data "coder_parameter" "app_3_share" {
     value = "public"
   }
 }
-
-data "coder_workspace" "me" {}
-
-locals {
-  # Derive a simple sanitized workspace name: replace hyphens and spaces with underscores and lowercase.
-  # This avoids using regexreplace in environments where it's unavailable.
-  sanitized_workspace_name_raw = try(data.coder_workspace.me.name, "")
-  sanitized_workspace_name = (
-    length(trimspace(local.sanitized_workspace_name_raw)) > 0
-    ? lower(replace(replace(local.sanitized_workspace_name_raw, "-", "_"), " ", "_"))
-    : "workspace"
-  )
-  # Shared description templates to avoid repeating long strings across parameter blocks
-  desc = {
-    container_name  = <<-DESC
-      Alphanumeric characters, hyphens, and underscores only (max 63 chars). Leave empty to skip this container. This name is used as the container hostname and network alias.
-
-      Example: `redis`, `postgres`, or `my-service`
-    DESC
-    container_image = <<-DESC
-      Docker image (e.g., 'redis:latest', 'postgres:13', 'mysql:8'). Format: `<repository>/<image>:<tag>` or `<image>:<tag>` or `<image>`.
-
-      Example: `postgres:15-alpine`
-    DESC
-    container_port = <<-DESC
-      The actual port the container listens on (1-65535). This is the container's internal port that will be proxied.
-
-      Example: `80`, `8080`, `3306`
-    DESC
-    local_port = <<-DESC
-      The local proxy port (19000-20000) to use for accessing this container. This must be unique across all containers and apps. The Coder app will proxy this local port to the container's port.
-
-      Example: `19080`, `19081`, `19306`
-    DESC
-    volume_mounts   = <<-DESC
-      Select one or more volume mounts in the form 'volume-name:/path/in/container'. The volume name must match an entry from 'Additional Volumes' or a preset volume. Use the tag selector to add multiple mounts.
-
-      Example: `postgres-data:/var/lib/postgresql/data` or `uploads:/srv/uploads`
-    DESC
-    env_vars        = <<-DESC
-      One environment variable per line, in KEY=VALUE format. Use valid env var names (letters, numbers, underscore) on the left side.
-
-      Example:
-        ```
-        POSTGRES_USER=embold
-
-        POSTGRES_PASSWORD=embold
-        ```
-    DESC
-    app_slug        = <<-DESC
-      URL-safe identifier (lowercase, hyphens, underscores). Slug must be lowercase and up to 32 chars.
-
-      Example: `redis-cli`
-    DESC
-    app_url         = <<-DESC
-      Internal service URL reachable from the workspace. Include protocol and optional port. Used to generate a reverse-proxy mapping.
-
-      Example: `http://redis:6379` or `http://localhost:9000/path`
-    DESC
-    app_icon        = <<-DESC
-      Icon path or emoji code for the app.
-
-      Example: `/icon/redis.svg` or `/emojis/1f310.png`
-    DESC
-  }
-  # Preset configurations for common services
-  preset_configs = {
-    redis = {
-      containers = [{
-        name  = "redis"
-        image = "redis:7-alpine"
-        # ports  = [6379]
-        env    = []
-        mounts = {}
-      }]
-      volumes = []
-    }
-    postgres = {
-      containers = [{
-        name  = "postgres"
-        image = "postgres:15-alpine"
-        # ports = [5432]
-        env = [
-          # Use a sanitized workspace name for the DB name (fallback handled by local.sanitized_workspace_name)
-          "POSTGRES_DB=${local.sanitized_workspace_name}",
-          "POSTGRES_USER=embold",
-          "POSTGRES_PASSWORD=embold"
-        ]
-        mounts = { "postgres-data" = "/var/lib/postgresql/data" }
-      }]
-      volumes = ["postgres-data"]
-      apps    = []
-    }
-    mysql = {
-      containers = [{
-        name  = "mysql"
-        image = "mysql:8.0"
-        # ports = [3306]
-        env = [
-          # MySQL expects a database name without special chars; use sanitized workspace name
-          "MYSQL_ROOT_PASSWORD=embold",
-          "MYSQL_DATABASE=${local.sanitized_workspace_name}",
-          "MYSQL_USER=embold",
-          "MYSQL_PASSWORD=embold"
-        ]
-        mounts = { "mysql-data" = "/var/lib/mysql" }
-      }]
-      volumes = ["mysql-data"]
-      apps    = []
-    }
-    mongo = {
-      containers = [{
-        name  = "mongo"
-        image = "mongo:7"
-        # ports = [27017]
-        env = [
-          # MongoDB initial DB can be created via the init scripts; set root user/pass to embold
-          "MONGO_INITDB_ROOT_USERNAME=embold",
-          "MONGO_INITDB_ROOT_PASSWORD=embold"
-        ]
-        mounts = { "mongo-data" = "/data/db" }
-      }]
-      volumes = ["mongo-data"]
-      apps    = []
-    }
-  }
-
-  icon = {
-    asterisk        = "/emojis/2733-fe0f.png"
-    docker          = "/emojis/1f433.png"
-    electrical_plug = "/emojis/1f50c.png"
-    folder          = "/emojis/1f4c1.png"
-    globe           = "/emojis/1f310.png"
-    lightning_bolt  = "/emojis/26a1.png"
-    locked_with_pen = "/emojis/1f50f.png"
-    name_badge      = "/emojis/1f4db.png"
-    paperclip       = "/emojis/1f517.png"
-    radio_button    = "/emojis/1f518.png"
-    snail           = "/emojis/1f40c.png"
-  }
-
-  # Check if user selected a preset
-  selected_preset = try(data.coder_parameter.quick_setup_preset.value, "none")
-  preset_data     = local.selected_preset != "none" && local.selected_preset != null ? local.preset_configs[local.selected_preset] : null
-
-  # Get the list of volume names from the parameter, plus any from presets
-  # additional_volumes is a singleton (no count), so access .value directly
-  base_volume_names      = try(jsondecode(data.coder_parameter.additional_volumes.value), [])
-  preset_volume_names    = local.preset_data != null ? local.preset_data.volumes : []
-  volume_names_to_create = concat(local.base_volume_names, local.preset_volume_names)
-
-  # Construct containers from preset (if selected) and custom parameters
-  preset_containers = local.preset_data != null ? local.preset_data.containers : []
-
-  # Build custom containers base list (no index yet)
-  # Each container_N parameter is defined with `count = ... ? 1 : 0`, so reference the [0] instance when present
-  custom_containers_base = [
-    {
-      name  = try(data.coder_parameter.container_1_name[0].value, "")
-      image = try(data.coder_parameter.container_1_image[0].value, "")
-      mounts = {
-        for mount in try(jsondecode(data.coder_parameter.container_1_volume_mounts[0].value), []) :
-        trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if mount != null && mount != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
-      }
-      env = [
-        for line in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) :
-        trimspace(line)
-        if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
-      ]
-    },
-    {
-      name  = try(data.coder_parameter.container_2_name[0].value, "")
-      image = try(data.coder_parameter.container_2_image[0].value, "")
-      mounts = {
-        for mount in try(jsondecode(data.coder_parameter.container_2_volume_mounts[0].value), []) :
-        trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if mount != null && mount != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
-      }
-      env = [
-        for line in split("\n", try(data.coder_parameter.container_2_env_vars[0].value, "")) :
-        trimspace(line)
-        if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
-      ]
-    },
-    {
-      name  = try(data.coder_parameter.container_3_name[0].value, "")
-      image = try(data.coder_parameter.container_3_image[0].value, "")
-      mounts = {
-        for mount in try(jsondecode(data.coder_parameter.container_3_volume_mounts[0].value), []) :
-        trimspace(split(":", mount)[0]) => trimspace(split(":", mount)[1])
-        if mount != null && mount != "" && can(regex(":", mount)) && length(split(":", mount)) >= 2
-      }
-      env = [
-        for line in split("\n", try(data.coder_parameter.container_3_env_vars[0].value, "")) :
-        trimspace(line)
-        if trimspace(line) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(line)))
-      ]
-    }
-  ]
-
-  custom_containers = [
-    for i, c in tolist(local.custom_containers_base) : merge(c, { custom_index = i + 1 })
-    if c.name != "" && c.image != ""
-  ]
-
-  # Build a single map for for_each: preset containers by name, custom containers by custom-N
-  # Key preset containers as preset-<index> to avoid collisions with externally-named containers
-  preset_containers_map = { for i, c in tolist(local.preset_containers) : "preset-${i + 1}" => c }
-
-  all_containers_map = merge(
-    local.preset_containers_map,
-    { for c in local.custom_containers : "custom-${c.custom_index}" => c }
-  )
-
-  # Combine preset and custom containers
-  additional_containers = concat(local.preset_containers, local.custom_containers)
-
-  # Construct apps from preset (if selected) and custom parameters
-  preset_apps = local.preset_data != null ? [
-    for i, app in local.preset_data.apps : {
-      name         = app.name
-      slug         = app.slug
-      icon         = app.icon
-      share        = app.share
-      original_url = app.url
-      remote_host  = regex("https?://([^:/]+)", app.url)[0]
-      remote_port  = can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80)
-      local_port   = 19000 + (can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80))
-      proxy_url    = "http://localhost:${19000 + (can(regex("https?://[^:/]+:(\\d+)", app.url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.url)[0]) : (startswith(app.url, "https://") ? 443 : 80))}"
-    }
-  ] : []
-
-  # Build apps from fixed parameter slots, then filter empties
-  custom_apps_raw = [
-    {
-      name         = try(data.coder_parameter.app_1_name[0].value, "")
-      slug         = try(data.coder_parameter.app_1_slug[0].value, "")
-      icon         = try(data.coder_parameter.app_1_icon[0].value, "")
-      share        = try(data.coder_parameter.app_1_share[0].value, "owner")
-      original_url = try(data.coder_parameter.app_1_url[0].value, "")
-    },
-    {
-      name         = try(data.coder_parameter.app_2_name[0].value, "")
-      slug         = try(data.coder_parameter.app_2_slug[0].value, "")
-      icon         = try(data.coder_parameter.app_2_icon[0].value, "")
-      share        = try(data.coder_parameter.app_2_share[0].value, "owner")
-      original_url = try(data.coder_parameter.app_2_url[0].value, "")
-    },
-    {
-      name         = try(data.coder_parameter.app_3_name[0].value, "")
-      slug         = try(data.coder_parameter.app_3_slug[0].value, "")
-      icon         = try(data.coder_parameter.app_3_icon[0].value, "")
-      share        = try(data.coder_parameter.app_3_share[0].value, "owner")
-      original_url = try(data.coder_parameter.app_3_url[0].value, "")
-    }
-  ]
-
-  # Assign ports after preset apps and build proxy URLs
-  custom_apps = [
-    for index, app in tolist(local.custom_apps_raw) : {
-      name         = app.name
-      slug         = app.slug
-      icon         = app.icon
-      share        = app.share
-      original_url = app.original_url
-      remote_host  = regex("https?://([^:/]+)", app.original_url)[0]
-      remote_port  = can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80)
-      local_port   = 19000 + (can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80))
-      proxy_url    = "http://localhost:${19000 + (can(regex("https?://[^:/]+:(\\d+)", app.original_url)) ? tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]) : (startswith(app.original_url, "https://") ? 443 : 80))}"
-    } if app.name != "" && app.slug != ""
-  ]
-
-  # Auto-generate apps from containers with create_app enabled
-  container_generated_apps_raw = [
-    {
-      name        = try(data.coder_parameter.container_1_name[0].value, "")
-      create_app  = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
-      port        = try(data.coder_parameter.container_1_ports[0].value, "")
-      local_port  = try(data.coder_parameter.container_1_local_port[0].value, "")
-    },
-    {
-      name        = try(data.coder_parameter.container_2_name[0].value, "")
-      create_app  = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
-      port        = try(data.coder_parameter.container_2_ports[0].value, "")
-      local_port  = try(data.coder_parameter.container_2_local_port[0].value, "")
-    },
-    {
-      name        = try(data.coder_parameter.container_3_name[0].value, "")
-      create_app  = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
-      port        = try(data.coder_parameter.container_3_ports[0].value, "")
-      local_port  = try(data.coder_parameter.container_3_local_port[0].value, "")
-    }
-  ]
-
-  container_generated_apps = [
-    for container in local.container_generated_apps_raw : {
-      name         = container.name
-      slug         = lower(replace(container.name, " ", "-"))
-      icon         = local.icon.globe
-      share        = "owner"
-      original_url = "http://d_${container.name}:${container.port}"
-      remote_host  = "d_${container.name}"
-      remote_port  = tonumber(container.port)
-      local_port   = tonumber(container.local_port)
-      proxy_url    = "http://localhost:${container.local_port}"
-    }
-    if container.name != "" && container.create_app == "true" && container.port != "" && container.local_port != ""
-  ]
-
-  # Combine preset, container-generated, and manually-defined custom apps
-  additional_apps = concat(local.preset_apps, local.container_generated_apps, local.custom_apps)
-
-  # Generate the PROXY_LINE string for the reverse proxy script.
-  proxy_mappings_str = join(" ", [
-    for app in local.additional_apps :
-    # Format: "local_port:remote_host:remote_port"
-    format(
-      "%d:%s:%d",
-      app.local_port,
-      app.remote_host,
-      app.remote_port
-    )
-    if app.original_url != null && app.original_url != ""
-  ])
-}
-
 
 # --- Section: Resource Creation ---
 resource "docker_volume" "dynamic_resource_volume" {
