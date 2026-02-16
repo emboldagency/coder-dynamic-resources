@@ -106,7 +106,7 @@ data "coder_parameter" "container_1_name" {
   display_name = "Container #1: Name"
   description  = local.desc.container_name
   type         = "string"
-  icon         = local.icon.name_badge
+  icon         = local.icon.nametag
   mutable      = true
   default      = ""
   order        = var.order + 3
@@ -137,7 +137,7 @@ data "coder_parameter" "container_1_ports" {
   name         = "container_1_ports"
   display_name = "Container #1: Container Port"
   description  = local.desc.container_port
-  icon         = local.icon.electrical_plug
+  icon         = local.icon.socket
   type         = "string"
   mutable      = true
   default      = ""
@@ -153,7 +153,7 @@ data "coder_parameter" "container_1_local_port" {
   name         = "container_1_local_port"
   display_name = "Container #1: Local Proxy Port"
   description  = local.desc.local_port
-  icon         = local.icon.electrical_plug
+  icon         = local.icon.socket
   type         = "string"
   mutable      = true
   default      = ""
@@ -184,7 +184,7 @@ data "coder_parameter" "container_1_env_vars" {
   description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
-  icon         = local.icon.asterisk
+  icon         = local.icon.environment
   mutable      = true
   default      = ""
   order        = var.order + 8
@@ -214,7 +214,7 @@ data "coder_parameter" "container_2_name" {
   display_name = "Container #2: Name"
   description  = local.desc.container_name
   type         = "string"
-  icon         = local.icon.name_badge
+  icon         = local.icon.nametag
   mutable      = true
   default      = ""
   order        = var.order + 9
@@ -245,7 +245,7 @@ data "coder_parameter" "container_2_ports" {
   name         = "container_2_ports"
   display_name = "Container #2: Container Port"
   description  = local.desc.container_port
-  icon         = local.icon.electrical_plug
+  icon         = local.icon.socket
   type         = "string"
   mutable      = true
   default      = ""
@@ -261,7 +261,7 @@ data "coder_parameter" "container_2_local_port" {
   name         = "container_2_local_port"
   display_name = "Container #2: Local Proxy Port"
   description  = local.desc.local_port
-  icon         = local.icon.electrical_plug
+  icon         = local.icon.socket
   type         = "string"
   mutable      = true
   default      = ""
@@ -292,7 +292,7 @@ data "coder_parameter" "container_2_env_vars" {
   description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
-  icon         = local.icon.asterisk
+  icon         = local.icon.environment
   mutable      = true
   default      = ""
   order        = var.order + 14
@@ -322,7 +322,7 @@ data "coder_parameter" "container_3_name" {
   display_name = "Container #3: Name"
   description  = local.desc.container_name
   type         = "string"
-  icon         = local.icon.name_badge
+  icon         = local.icon.nametag
   mutable      = true
   default      = ""
   order        = var.order + 16
@@ -353,7 +353,7 @@ data "coder_parameter" "container_3_ports" {
   name         = "container_3_ports"
   display_name = "Container #3: Container Port"
   description  = local.desc.container_port
-  icon         = local.icon.electrical_plug
+  icon         = local.icon.socket
   type         = "string"
   mutable      = true
   default      = ""
@@ -369,7 +369,7 @@ data "coder_parameter" "container_3_local_port" {
   name         = "container_3_local_port"
   display_name = "Container #3: Local Proxy Port"
   description  = local.desc.local_port
-  icon         = local.icon.electrical_plug
+  icon         = local.icon.socket
   type         = "string"
   mutable      = true
   default      = ""
@@ -400,7 +400,7 @@ data "coder_parameter" "container_3_env_vars" {
   description  = local.desc.env_vars
   form_type    = "textarea"
   type         = "string"
-  icon         = local.icon.asterisk
+  icon         = local.icon.environment
   mutable      = true
   default      = ""
   order        = var.order + 21
@@ -429,7 +429,7 @@ data "coder_parameter" "custom_coder_app_count" {
   display_name = "Additional Coder App Count"
   description  = "Number of additional Coder Apps to create (0-3). Set to 0 to skip adding apps."
   type         = "number"
-  icon         = local.icon.radio_button
+  icon         = local.icon.quantity
   form_type    = "slider"
   mutable      = true
   default      = 0
@@ -446,7 +446,7 @@ data "coder_parameter" "app_1_name" {
   name         = "app_1_name"
   display_name = "Coder App #1: Name"
   type         = "string"
-  icon         = local.icon.name_badge
+  icon         = local.icon.nametag
   mutable      = true
   default      = ""
   order        = var.order + 24
@@ -458,7 +458,7 @@ data "coder_parameter" "app_1_slug" {
   display_name = "Coder App #1: Slug"
   description  = local.desc.app_slug
   type         = "string"
-  icon         = local.icon.snail
+  icon         = local.icon.tag
   mutable      = true
   default      = ""
   order        = var.order + 25
@@ -501,7 +501,7 @@ data "coder_parameter" "app_1_share" {
   name         = "app_1_share"
   display_name = "Coder App #1: Share Level"
   type         = "string"
-  icon         = local.icon.locked_with_pen
+  icon         = local.icon.share_permission
   default      = "owner"
   mutable      = true
   order        = var.order + 28
@@ -524,7 +524,7 @@ data "coder_parameter" "app_2_name" {
   name         = "app_2_name"
   display_name = "Coder App #2: Name"
   type         = "string"
-  icon         = local.icon.name_badge
+  icon         = local.icon.nametag
   mutable      = true
   default      = ""
   order        = var.order + 29
@@ -540,7 +540,7 @@ data "coder_parameter" "app_2_slug" {
     Example: `adminer`
   DESC
   type         = "string"
-  icon         = local.icon.snail
+  icon         = local.icon.tag
   mutable      = true
   default      = ""
   order        = var.order + 30
@@ -591,7 +591,7 @@ data "coder_parameter" "app_2_share" {
   name         = "app_2_share"
   display_name = "Coder App #2: Share Level"
   type         = "string"
-  icon         = local.icon.locked_with_pen
+  icon         = local.icon.share_permission
   default      = "owner"
   mutable      = true
   order        = var.order + 33
@@ -614,7 +614,7 @@ data "coder_parameter" "app_3_name" {
   name         = "app_3_name"
   display_name = "Coder App #3: Name"
   type         = "string"
-  icon         = local.icon.name_badge
+  icon         = local.icon.nametag
   mutable      = true
   default      = ""
   order        = var.order + 34
@@ -630,7 +630,7 @@ data "coder_parameter" "app_3_slug" {
     Example: `mailpit`
   DESC
   type         = "string"
-  icon         = local.icon.snail
+  icon         = local.icon.tag
   mutable      = true
   default      = ""
   order        = var.order + 35
@@ -681,7 +681,7 @@ data "coder_parameter" "app_3_share" {
   name         = "app_3_share"
   display_name = "Coder App #3: Share Level"
   type         = "string"
-  icon         = local.icon.locked_with_pen
+  icon         = local.icon.share_permission
   default      = "owner"
   mutable      = true
   order        = var.order + 38
