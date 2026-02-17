@@ -31,69 +31,29 @@ locals {
   # Get explicit volume names from parameter
   base_volume_names = try(jsondecode(data.coder_parameter.additional_volumes.value), [])
 
-  # Parse Docker Compose YAML
-  compose_parsed   = try(yamldecode(data.coder_parameter.docker_compose_yaml.value), {})
-  compose_services = try(local.compose_parsed.services, {})
-
-  # Convert Compose Services to Custom Containers format
-  compose_containers = [
-    for name, config in local.compose_services : {
-      name       = tostring(name)
-      image      = tostring(try(config.image, ""))
-      mounts     = { for m in try(config.volumes, []) : tostring(trimspace(split(":", m)[0])) => tostring(trimspace(split(":", m)[1])) if length(split(":", m)) >= 2 }
-      env        = try(length(keys(config.environment)) >= 0 ? [for k, v in config.environment : "${k}=${v}"] : [], [for s in config.environment : tostring(s)], [])
-      port       = tostring(try(split(":", config.ports[0])[1], ""))
-      local_port = tostring(try(split(":", config.ports[0])[0], ""))
-      create_app = try(tobool(config.labels["coder.create_app"]), false)
-      command    = try([for c in lookup(config, "command", []) : tostring(c)], lookup(config, "command", []) != null ? [tostring(lookup(config, "command", []))] : [])
-      entrypoint = try([for e in lookup(config, "entrypoint", []) : tostring(e)], lookup(config, "entrypoint", []) != null ? [tostring(lookup(config, "entrypoint", []))] : [])
-    }
-  ]
-
-  # Build custom containers list (merging base parameters, compose services, and filtering empties)
+  # Build custom containers list (merging base parameters and filtering empties)
   custom_containers = [
-    for i, c in concat([
+    for i, c in [
       {
-        name       = tostring(try(data.coder_parameter.container_1_name[0].value, ""))
-        image      = tostring(try(data.coder_parameter.container_1_image[0].value, ""))
-        mounts     = { for m in try(jsondecode(data.coder_parameter.container_1_volume_mounts[0].value), []) : tostring(trimspace(split(":", m)[0])) => tostring(trimspace(split(":", m)[1])) if length(split(":", m)) >= 2 }
-        env        = [for l in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) : tostring(trimspace(l)) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
-        port       = tostring(try(data.coder_parameter.container_1_ports[0].value, ""))
-        local_port = tostring(try(data.coder_parameter.container_1_local_port[0].value, ""))
-        create_app = try(tobool(data.coder_parameter.container_1_create_coder_app[0].value), false)
-        command    = []
-        entrypoint = []
+        name   = try(data.coder_parameter.container_1_name[0].value, "")
+        image  = try(data.coder_parameter.container_1_image[0].value, "")
+        mounts = { for m in try(jsondecode(data.coder_parameter.container_1_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
+        env    = [for l in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
       },
       {
-        name       = tostring(try(data.coder_parameter.container_2_name[0].value, ""))
-        image      = tostring(try(data.coder_parameter.container_2_image[0].value, ""))
-        mounts     = { for m in try(jsondecode(data.coder_parameter.container_2_volume_mounts[0].value), []) : tostring(trimspace(split(":", m)[0])) => tostring(trimspace(split(":", m)[1])) if length(split(":", m)) >= 2 }
-        env        = [for l in split("\n", try(data.coder_parameter.container_2_env_vars[0].value, "")) : tostring(trimspace(l)) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
-        port       = tostring(try(data.coder_parameter.container_2_ports[0].value, ""))
-        local_port = tostring(try(data.coder_parameter.container_2_local_port[0].value, ""))
-        create_app = try(tobool(data.coder_parameter.container_2_create_coder_app[0].value), false)
-        command    = []
-        entrypoint = []
+        name   = try(data.coder_parameter.container_2_name[0].value, "")
+        image  = try(data.coder_parameter.container_2_image[0].value, "")
+        mounts = { for m in try(jsondecode(data.coder_parameter.container_2_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
+        env    = [for l in split("\n", try(data.coder_parameter.container_2_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
       },
       {
-        name       = tostring(try(data.coder_parameter.container_3_name[0].value, ""))
-        image      = tostring(try(data.coder_parameter.container_3_image[0].value, ""))
-        mounts     = { for m in try(jsondecode(data.coder_parameter.container_3_volume_mounts[0].value), []) : tostring(trimspace(split(":", m)[0])) => tostring(trimspace(split(":", m)[1])) if length(split(":", m)) >= 2 }
-        env        = [for l in split("\n", try(data.coder_parameter.container_3_env_vars[0].value, "")) : tostring(trimspace(l)) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
-        port       = tostring(try(data.coder_parameter.container_3_ports[0].value, ""))
-        local_port = tostring(try(data.coder_parameter.container_3_local_port[0].value, ""))
-        create_app = try(tobool(data.coder_parameter.container_3_create_coder_app[0].value), false)
-        command    = []
-        entrypoint = []
+        name   = try(data.coder_parameter.container_3_name[0].value, "")
+        image  = try(data.coder_parameter.container_3_image[0].value, "")
+        mounts = { for m in try(jsondecode(data.coder_parameter.container_3_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
+        env    = [for l in split("\n", try(data.coder_parameter.container_3_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
       }
-    ], local.compose_containers) : merge(c, { custom_index = i + 1 })
-    # Filter out empty configs OR if fixed container index exceeds the selected count
-    # Logic:
-    # - Compose containers always included (part of concat, assume valid)
-    # - Fixed containers 1,2,3 checked against 'i' (0-2).
-    # - If i < 3 (fixed containers), verify i < custom_container_count
-    # - AND c.name != "" && c.image != ""
-    if c.name != "" && c.image != "" && (i >= 3 || i < try(data.coder_parameter.custom_container_count.value, 0))
+    ] : merge(c, { custom_index = i + 1 })
+    if c.name != "" && c.image != ""
   ]
 
   # Identify implicit volumes from mounts (keys that don't look like paths)
@@ -149,7 +109,26 @@ locals {
 
   # Auto-generate apps from containers
   container_generated_apps = [
-    for container in local.custom_containers : {
+    for container in [
+      {
+        name       = try(data.coder_parameter.container_1_name[0].value, "")
+        create_app = try(data.coder_parameter.container_1_create_coder_app[0].value, "false")
+        port       = try(data.coder_parameter.container_1_ports[0].value, "")
+        local_port = try(data.coder_parameter.container_1_local_port[0].value, "")
+      },
+      {
+        name       = try(data.coder_parameter.container_2_name[0].value, "")
+        create_app = try(data.coder_parameter.container_2_create_coder_app[0].value, "false")
+        port       = try(data.coder_parameter.container_2_ports[0].value, "")
+        local_port = try(data.coder_parameter.container_2_local_port[0].value, "")
+      },
+      {
+        name       = try(data.coder_parameter.container_3_name[0].value, "")
+        create_app = try(data.coder_parameter.container_3_create_coder_app[0].value, "false")
+        port       = try(data.coder_parameter.container_3_ports[0].value, "")
+        local_port = try(data.coder_parameter.container_3_local_port[0].value, "")
+      }
+      ] : {
       name         = container.name
       slug         = lower(replace(container.name, " ", "-"))
       icon         = local.icon.globe
@@ -159,7 +138,7 @@ locals {
       remote_port  = tonumber(container.port)
       local_port   = tonumber(container.local_port)
       proxy_url    = "http://localhost:${container.local_port}"
-    } if container.name != "" && (container.create_app == "true" || container.create_app == true) && container.port != "" && container.local_port != ""
+    } if container.name != "" && container.create_app == "true" && container.port != "" && container.local_port != ""
   ]
 
   # Combine all apps for proxy generation
@@ -247,18 +226,6 @@ data "coder_workspace_preset" "mongo" {
       "MONGO_INITDB_ROOT_PASSWORD=embold"
     ]),
   }
-}
-
-data "coder_parameter" "docker_compose_yaml" {
-  name         = "docker_compose_yaml"
-  display_name = "Docker Compose (YAML)"
-  description  = "Paste the content of a docker-compose.yml file to define additional containers."
-  type         = "string"
-  icon         = local.icon.docker
-  form_type    = "textarea"
-  mutable      = true
-  default      = ""
-  order        = var.order + 1
 }
 
 # --- Section: Parameters for Additional Volumes ---
@@ -419,6 +386,7 @@ data "coder_parameter" "container_1_create_coder_app" {
 }
 
 data "coder_parameter" "container_2_name" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_name"
   display_name = "Container #2: Name"
@@ -435,6 +403,7 @@ data "coder_parameter" "container_2_name" {
 }
 
 data "coder_parameter" "container_2_image" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_image"
   display_name = "Container #2: Image"
@@ -451,6 +420,7 @@ data "coder_parameter" "container_2_image" {
 }
 
 data "coder_parameter" "container_2_ports" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_ports"
   display_name = "Container #2: Container Port"
@@ -467,6 +437,7 @@ data "coder_parameter" "container_2_ports" {
 }
 
 data "coder_parameter" "container_2_local_port" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_local_port"
   display_name = "Container #2: Local Proxy Port"
@@ -483,6 +454,7 @@ data "coder_parameter" "container_2_local_port" {
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
@@ -496,6 +468,7 @@ data "coder_parameter" "container_2_volume_mounts" {
 }
 
 data "coder_parameter" "container_2_env_vars" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
@@ -515,6 +488,7 @@ data "coder_parameter" "container_2_env_vars" {
 }
 
 data "coder_parameter" "container_2_create_coder_app" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_create_coder_app"
   display_name = "Container #2: Create Coder App?"
@@ -527,6 +501,7 @@ data "coder_parameter" "container_2_create_coder_app" {
 }
 
 data "coder_parameter" "container_3_name" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_name"
   display_name = "Container #3: Name"
@@ -543,6 +518,7 @@ data "coder_parameter" "container_3_name" {
 }
 
 data "coder_parameter" "container_3_image" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_image"
   display_name = "Container #3: Image"
@@ -559,6 +535,7 @@ data "coder_parameter" "container_3_image" {
 }
 
 data "coder_parameter" "container_3_ports" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_ports"
   display_name = "Container #3: Container Port"
@@ -575,6 +552,7 @@ data "coder_parameter" "container_3_ports" {
 }
 
 data "coder_parameter" "container_3_local_port" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_local_port"
   display_name = "Container #3: Local Proxy Port"
@@ -591,6 +569,7 @@ data "coder_parameter" "container_3_local_port" {
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
@@ -604,6 +583,7 @@ data "coder_parameter" "container_3_volume_mounts" {
 }
 
 data "coder_parameter" "container_3_env_vars" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
@@ -623,6 +603,7 @@ data "coder_parameter" "container_3_env_vars" {
 }
 
 data "coder_parameter" "container_3_create_coder_app" {
+  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_create_coder_app"
   display_name = "Container #3: Create Coder App?"
@@ -946,8 +927,6 @@ resource "docker_container" "dynamic_resource_container" {
   hostname     = "d_${each.value.name}"
   network_mode = var.docker_network_name
   env          = each.value.env
-  command      = length(each.value.command) > 0 ? each.value.command : null
-  entrypoint   = length(each.value.entrypoint) > 0 ? each.value.entrypoint : null
   #   restart      = "unless-stopped"
 
   # Resource limits to prevent containers from consuming excessive resources
@@ -1063,4 +1042,3 @@ resource "coder_metadata" "dynamic_container_info" {
   #   value = startswith(each.key, "preset-") ? "Preset" : "Custom"
   # }
 }
-
