@@ -133,8 +133,8 @@ locals {
       slug         = lower(replace(container.name, " ", "-"))
       icon         = local.icon.globe
       share        = "owner"
-      original_url = "http://d_${container.name}:${container.port}"
-      remote_host  = "d_${container.name}"
+      original_url = "http://${container.name}:${container.port}"
+      remote_host  = container.name
       remote_port  = tonumber(container.port)
       local_port   = tonumber(container.local_port)
       proxy_url    = "http://localhost:${container.local_port}"
@@ -150,6 +150,23 @@ locals {
     format("%d:%s:%d", app.local_port, app.remote_host, app.remote_port)
     if app.original_url != null && app.original_url != ""
   ])
+}
+
+resource "terraform_data" "validate_names" {
+  triggers_replace = [
+    local.custom_containers
+  ]
+
+  lifecycle {
+    precondition {
+      condition     = length([for c in local.custom_containers : c.name]) == length(distinct([for c in local.custom_containers : c.name]))
+      error_message = "Duplicate container names detected. Each container must have a unique name."
+    }
+    precondition {
+      condition     = length(setintersection([for c in local.custom_containers : c.name], var.reserved_container_names)) == 0
+      error_message = "Container name is reserved. The following names are reserved and cannot be used: ${join(", ", var.reserved_container_names)}"
+    }
+  }
 }
 
 data "coder_workspace_preset" "redis" {
@@ -261,24 +278,10 @@ data "coder_parameter" "custom_container_count" {
   }
 }
 
-# data "coder_parameter" "custom_volume_count" {
-#   count        = local.selected_preset ? 1 : 0
-#   name         = "custom_volume_count"
-#   display_name = "Custom Volume Count"
-#   description  = "Number of additional Docker volumes to create (1-3). Leave as 0 to skip adding containers."
-#   type         = "number"
-#   form_type    = "slider"
-#   default      = 0
-#   validation {
-#     min = 1
-#     max = 3
-#   }
-# }
-
 # --- Fixed parameter sets for up to 3 containers (leave blank to skip) ---
 data "coder_parameter" "container_1_name" {
   # Always present to preserve entered values; selection controlled later by custom_container_count
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_name"
   display_name = "Container #1: Name"
   description  = local.desc.container_name
@@ -294,7 +297,7 @@ data "coder_parameter" "container_1_name" {
 }
 
 data "coder_parameter" "container_1_image" {
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_image"
   display_name = "Container #1: Image"
   description  = local.desc.container_image
@@ -310,7 +313,7 @@ data "coder_parameter" "container_1_image" {
 }
 
 data "coder_parameter" "container_1_ports" {
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_ports"
   display_name = "Container #1: Container Port"
   description  = local.desc.container_port
@@ -326,7 +329,7 @@ data "coder_parameter" "container_1_ports" {
 }
 
 data "coder_parameter" "container_1_local_port" {
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_local_port"
   display_name = "Container #1: Local Proxy Port"
   description  = local.desc.local_port
@@ -342,7 +345,7 @@ data "coder_parameter" "container_1_local_port" {
 }
 
 data "coder_parameter" "container_1_volume_mounts" {
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_volume_mounts"
   display_name = "Container #1: Volume Mounts"
   description  = local.desc.volume_mounts
@@ -355,7 +358,7 @@ data "coder_parameter" "container_1_volume_mounts" {
 }
 
 data "coder_parameter" "container_1_env_vars" {
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_env_vars"
   display_name = "Container #1: Environment Variables"
   description  = local.desc.env_vars
@@ -374,7 +377,7 @@ data "coder_parameter" "container_1_env_vars" {
 }
 
 data "coder_parameter" "container_1_create_coder_app" {
-  count        = 1
+  count        = data.coder_parameter.custom_container_count.value >= 1 ? 1 : 0
   name         = "container_1_create_coder_app"
   display_name = "Container #1: Create Coder App?"
   description  = "Automatically create a Coder app button to access this container's web interface"
@@ -386,7 +389,6 @@ data "coder_parameter" "container_1_create_coder_app" {
 }
 
 data "coder_parameter" "container_2_name" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_name"
   display_name = "Container #2: Name"
@@ -403,7 +405,6 @@ data "coder_parameter" "container_2_name" {
 }
 
 data "coder_parameter" "container_2_image" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_image"
   display_name = "Container #2: Image"
@@ -420,7 +421,6 @@ data "coder_parameter" "container_2_image" {
 }
 
 data "coder_parameter" "container_2_ports" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_ports"
   display_name = "Container #2: Container Port"
@@ -437,7 +437,6 @@ data "coder_parameter" "container_2_ports" {
 }
 
 data "coder_parameter" "container_2_local_port" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_local_port"
   display_name = "Container #2: Local Proxy Port"
@@ -454,7 +453,6 @@ data "coder_parameter" "container_2_local_port" {
 }
 
 data "coder_parameter" "container_2_volume_mounts" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_volume_mounts"
   display_name = "Container #2: Volume Mounts"
@@ -468,7 +466,6 @@ data "coder_parameter" "container_2_volume_mounts" {
 }
 
 data "coder_parameter" "container_2_env_vars" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_env_vars"
   display_name = "Container #2: Environment Variables"
@@ -488,7 +485,6 @@ data "coder_parameter" "container_2_env_vars" {
 }
 
 data "coder_parameter" "container_2_create_coder_app" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 2 ? 1 : 0
   name         = "container_2_create_coder_app"
   display_name = "Container #2: Create Coder App?"
@@ -501,7 +497,6 @@ data "coder_parameter" "container_2_create_coder_app" {
 }
 
 data "coder_parameter" "container_3_name" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_name"
   display_name = "Container #3: Name"
@@ -518,7 +513,6 @@ data "coder_parameter" "container_3_name" {
 }
 
 data "coder_parameter" "container_3_image" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_image"
   display_name = "Container #3: Image"
@@ -535,7 +529,6 @@ data "coder_parameter" "container_3_image" {
 }
 
 data "coder_parameter" "container_3_ports" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_ports"
   display_name = "Container #3: Container Port"
@@ -552,7 +545,6 @@ data "coder_parameter" "container_3_ports" {
 }
 
 data "coder_parameter" "container_3_local_port" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_local_port"
   display_name = "Container #3: Local Proxy Port"
@@ -569,7 +561,6 @@ data "coder_parameter" "container_3_local_port" {
 }
 
 data "coder_parameter" "container_3_volume_mounts" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_volume_mounts"
   display_name = "Container #3: Volume Mounts"
@@ -583,7 +574,6 @@ data "coder_parameter" "container_3_volume_mounts" {
 }
 
 data "coder_parameter" "container_3_env_vars" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_env_vars"
   display_name = "Container #3: Environment Variables"
@@ -603,7 +593,6 @@ data "coder_parameter" "container_3_env_vars" {
 }
 
 data "coder_parameter" "container_3_create_coder_app" {
-  # count        = 1
   count        = data.coder_parameter.custom_container_count.value >= 3 ? 1 : 0
   name         = "container_3_create_coder_app"
   display_name = "Container #3: Create Coder App?"
@@ -924,7 +913,7 @@ resource "docker_container" "dynamic_resource_container" {
     : "${var.resource_name_base}-${each.value.name}"
   )
   image        = each.value.image
-  hostname     = "d_${each.value.name}"
+  hostname     = each.value.name
   network_mode = var.docker_network_name
   env          = each.value.env
   #   restart      = "unless-stopped"
