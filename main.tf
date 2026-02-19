@@ -60,7 +60,8 @@ locals {
     if c.name != "" && c.image != ""
   ]
 
-  # Identify implicit volumes from mounts (keys that don't look like paths)
+  # Identify implicit volumes from mounts (keys that don't look like paths).
+  # Keys not starting with /, ., or ~ are treated as volume names to be created.
   implicit_volume_names = flatten([
     for c in local.custom_containers : keys({
       for k, v in c.mounts : k => v
@@ -104,10 +105,13 @@ locals {
       icon         = app.icon
       share        = app.share
       original_url = app.original_url
-      remote_host  = try(regex("https?://([^:/]+)", app.original_url)[0], "")
-      remote_port  = try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)
-      local_port   = 19000 + try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)
-      proxy_url    = "http://localhost:${19000 + try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)}"
+      # Parse URLs to extract host/port and calculate local mappings.
+      # host: everything between http(s):// and the first colon or slash.
+      # port: extracted from the URL, or defaults to 80/443 based on scheme.
+      remote_host = try(regex("https?://([^:/]+)", app.original_url)[0], "")
+      remote_port = try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)
+      local_port  = 19000 + try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)
+      proxy_url   = "http://localhost:${19000 + try(tonumber(regex("https?://[^:/]+:(\\d+)", app.original_url)[0]), startswith(app.original_url, "https://") ? 443 : 80)}"
     } if app.name != "" && app.slug != ""
   ]
 
