@@ -35,10 +35,14 @@ locals {
   custom_containers = [
     for i, c in [
       {
-        name   = try(data.coder_parameter.container_1_name[0].value, "")
-        image  = try(data.coder_parameter.container_1_image[0].value, "")
+        name  = try(data.coder_parameter.container_1_name[0].value, "")
+        image = try(data.coder_parameter.container_1_image[0].value, "")
+        # Parse volume mounts from "volume:mount_path" string format.
+        # Splits by colon, trims whitespace, and ignores malformed entries.
         mounts = { for m in try(jsondecode(data.coder_parameter.container_1_volume_mounts[0].value), []) : trimspace(split(":", m)[0]) => trimspace(split(":", m)[1]) if length(split(":", m)) >= 2 }
-        env    = [for l in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
+        # Parse environment variables from multiline string.
+        # Splits by newline, trims whitespace, and ensures "KEY=VALUE" format via regex.
+        env = [for l in split("\n", try(data.coder_parameter.container_1_env_vars[0].value, "")) : trimspace(l) if trimspace(l) != "" && can(regex("^[A-Za-z_][A-Za-z0-9_]*=.*$", trimspace(l)))]
       },
       {
         name   = try(data.coder_parameter.container_2_name[0].value, "")
@@ -174,7 +178,7 @@ data "coder_workspace_preset" "redis" {
   description = "Redis Cache"
   icon        = local.icon.redis
   parameters = {
-    "container_1_name"             = "redis",
+    "container_1_name"             = "redis-service",
     "container_1_image"            = "redis:7-alpine",
     "container_1_ports"            = "6379",
     "container_1_local_port"       = "19000",
@@ -190,7 +194,7 @@ data "coder_workspace_preset" "postgres" {
   description = "PostgreSQL Database"
   icon        = local.icon.postgres
   parameters = {
-    "container_1_name"             = "postgres",
+    "container_1_name"             = "postgres-service",
     "container_1_image"            = "postgres:15-alpine",
     "container_1_ports"            = "5432",
     "container_1_local_port"       = "19001",
@@ -210,7 +214,7 @@ data "coder_workspace_preset" "mysql" {
   description = "MySQL Database"
   icon        = local.icon.mysql
   parameters = {
-    "container_1_name"             = "mysql",
+    "container_1_name"             = "mysql-service",
     "container_1_image"            = "mysql:8.0",
     "container_1_ports"            = "3306",
     "container_1_local_port"       = "19002",
@@ -231,7 +235,7 @@ data "coder_workspace_preset" "mongo" {
   description = "MongoDB Database"
   icon        = local.icon.mongo
   parameters = {
-    "container_1_name"             = "mongo",
+    "container_1_name"             = "mongo-service",
     "container_1_image"            = "mongo:7",
     "container_1_ports"            = "27017",
     "container_1_local_port"       = "19003",
