@@ -176,7 +176,7 @@ data "coder_workspace_preset" "redis" {
   parameters = {
     "container_1_name"             = "redis",
     "container_1_image"            = "redis:7-alpine",
-    "container_1_ports"            = jsonencode([6379]),
+    "container_1_ports"            = "6379",
     "container_1_local_port"       = "19000",
     "container_1_volume_mounts"    = jsonencode(["redis:/data"]),
     "container_1_create_coder_app" = "false",
@@ -192,7 +192,7 @@ data "coder_workspace_preset" "postgres" {
   parameters = {
     "container_1_name"             = "postgres",
     "container_1_image"            = "postgres:15-alpine",
-    "container_1_ports"            = jsonencode([5432]),
+    "container_1_ports"            = "5432",
     "container_1_local_port"       = "19001",
     "container_1_volume_mounts"    = jsonencode(["postgres:/var/lib/postgresql/data"]),
     "container_1_create_coder_app" = "false",
@@ -212,7 +212,7 @@ data "coder_workspace_preset" "mysql" {
   parameters = {
     "container_1_name"             = "mysql",
     "container_1_image"            = "mysql:8.0",
-    "container_1_ports"            = jsonencode([3306]),
+    "container_1_ports"            = "3306",
     "container_1_local_port"       = "19002",
     "container_1_volume_mounts"    = jsonencode(["mysql:/var/lib/mysql"]),
     "container_1_create_coder_app" = "false",
@@ -233,7 +233,7 @@ data "coder_workspace_preset" "mongo" {
   parameters = {
     "container_1_name"             = "mongo",
     "container_1_image"            = "mongo:7",
-    "container_1_ports"            = jsonencode([27017]),
+    "container_1_ports"            = "27017",
     "container_1_local_port"       = "19003",
     "container_1_volume_mounts"    = jsonencode(["mongo:/data/db"]),
     "container_1_create_coder_app" = "false",
